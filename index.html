@@ -168,7 +168,20 @@
         <h1>🎮 미니게임 아케이드</h1>
         <p>다양한 장르의 미니게임을 즐겨보세요! <strong>총 9개 게임</strong></p>
         <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.9;">📱 모바일에서도 플레이 가능! (터치 컨트롤 지원)</p>
-        <a href="stats.html" style="display: inline-block; margin-top: 15px; padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; border: 2px solid white; transition: all 0.3s;">📊 통계 보기</a>
+        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <a href="stats.html" style="display: inline-block; padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; border: 2px solid white; transition: all 0.3s;">📊 통계 보기</a>
+            <button onclick="clearCache()" id="clearCacheBtn" style="padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 20px; cursor: pointer; transition: all 0.3s; font-size: 1em;">🔄 캐시 새로고침</button>
+        </div>
+        
+        <style>
+            #clearCacheBtn:hover,
+            a[href="stats.html"]:hover {
+                background: white !important;
+                color: #667eea !important;
+                transform: scale(1.05);
+            }
+        </style>
+        </div>
         
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="🔍 게임 검색..." oninput="filterGames()">
@@ -284,6 +297,28 @@
     </div>
     
     <script>
+        async function clearCache() {
+            try {
+                // Service Worker 캐시 클리어
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('캐시 클리어 완료:', cacheNames);
+                }
+                
+                // 성공 메시지
+                alert('✅ 캐시가 삭제되었습니다. 페이지를 새로고침합니다.');
+                
+                // Hard reload with cache busting
+                const url = new URL(window.location.href);
+                url.searchParams.set('v', Date.now());
+                window.location.href = url.toString();
+            } catch (error) {
+                console.error('캐시 클리어 실패:', error);
+                alert('❌ 캐시 클리어 중 오류가 발생했습니다.');
+            }
+        }
+        
         function filterGames() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const cards = document.querySelectorAll('.game-card');
