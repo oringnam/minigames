@@ -276,6 +276,56 @@ class GameUtils {
     }
     
     /**
+     * 디바운스 헬퍼
+     */
+    static debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    /**
+     * 쓰로틀 헬퍼
+     */
+    static throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
+    
+    /**
+     * 랜덤 색상 생성
+     */
+    static randomColor() {
+        return `#${Math.floor(Math.random()*16777215).toString(16)}`;
+    }
+    
+    /**
+     * 범위 내 숫자로 제한
+     */
+    static clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+    
+    /**
+     * 선형 보간
+     */
+    static lerp(start, end, t) {
+        return start + (end - start) * t;
+    }
+    
+    /**
      * 카드 필터링 (검색어 또는 태그)
      */
     static filterCards(options = {}) {
