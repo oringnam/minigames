@@ -70,7 +70,7 @@
             color: #6c5ce7;
         }
         
-        .board {
+        .memory-board {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
@@ -207,7 +207,7 @@
                 font-size: 1.2em;
             }
             
-            .board {
+            .memory-board {
                 grid-template-columns: repeat(4, calc((100vw - 70px) / 4));
                 gap: 8px;
                 max-width: 100%;
@@ -249,7 +249,7 @@
             </div>
         </div>
         
-        <div class="board" id="board"></div>
+        <div class="memory-board" id="board"></div>
         
         <div class="btn-group">
             <button class="btn" onclick="initGame()">새 게임</button>
