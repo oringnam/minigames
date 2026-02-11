@@ -253,14 +253,14 @@
         }
         
         function addToSequence() {
-            const randomIndex = Math.floor(Math.random() * 4);
+            const randomIndex = GameUtils.randomInt(0, 4);
             sequence.push(randomIndex);
             level++;
             scoreBoard.update('level', level);
             
-            if (level > highScore) {
+            // 최고점수 자동 갱신
+            if (GameUtils.updateHighScore('simon', level, 'highScore')) {
                 highScore = level;
-                GameUtils.saveScore('simon', 'highScore', highScore);
                 scoreBoard.update('highScore', highScore);
                 sounds.play('powerup');
                 vibrate([100, 50, 100]);
