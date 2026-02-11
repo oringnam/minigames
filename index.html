@@ -15,292 +15,390 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            padding-bottom: 40px;
         }
         
+        /* 헤더 */
         .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .header h1 {
-            font-size: 3em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
-            animation: pulse 2s ease-in-out infinite;
+            color: white;
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .header-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            margin-bottom: 12px;
         }
         
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-        
-        .search-bar {
-            margin: 20px auto;
-            max-width: 500px;
-        }
-        
-        .search-bar input {
-            width: 100%;
-            padding: 15px 25px;
-            font-size: 1em;
-            border: none;
-            border-radius: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            outline: none;
-        }
-        
-        .filters {
+        /* 검색 + 액션 버튼 */
+        .search-actions {
             display: flex;
             gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
+            margin-bottom: 12px;
         }
         
-        .filter-btn {
-            padding: 8px 20px;
-            background: rgba(255,255,255,0.3);
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.95em;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .action-btn {
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.25);
             color: white;
-            border: 2px solid white;
+            border: 1px solid rgba(255,255,255,0.4);
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9em;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
         }
         
-        .filter-btn:hover,
-        .filter-btn.active {
+        .action-btn:hover {
             background: white;
             color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        /* 카테고리 칩 (가로 스크롤) */
+        .categories {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-chip {
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .category-chip.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        /* 게임 그리드 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            max-width: 1400px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .search-actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .games-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+        
+        /* 게임 카드 */
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .game-icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+        }
+        
+        .game-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .game-desc {
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        
+        .game-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .game-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+        }
+        
+        /* 푸터 */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        /* 로딩/빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 1.2em;
         }
         
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 2em;
+                font-size: 1.5em;
             }
             
-            .games-grid {
-                grid-template-columns: 1fr;
+            .game-card {
+                padding: 15px;
             }
             
-            .filters {
-                flex-direction: column;
+            .game-icon {
+                font-size: 2.5em;
             }
-        }
-        
-        .game-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        
-        .game-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-        
-        .game-card .icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .game-card h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .game-card p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        
-        .game-card .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .game-card .tag {
-            background: #667eea;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-        }
-        
-        .footer {
-            margin-top: 50px;
-            color: white;
-            text-align: center;
-            opacity: 0.8;
+            
+            .game-name {
+                font-size: 1em;
+            }
+            
+            .game-desc {
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 헤더 -->
     <div class="header">
-        <h1>🎮 미니게임 아케이드</h1>
-        <p>다양한 장르의 미니게임을 즐겨보세요! <strong>총 8개 게임</strong></p>
-        <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.9;">📱 모바일에서도 플레이 가능! (터치 컨트롤 지원)</p>
-        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <a href="stats.html" style="display: inline-block; padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; border: 2px solid white; transition: all 0.3s;">📊 통계 보기</a>
-            <button onclick="clearCache()" id="clearCacheBtn" style="padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 20px; cursor: pointer; transition: all 0.3s; font-size: 1em;">🔄 캐시 새로고침</button>
-        </div>
-        
-        <style>
-            #clearCacheBtn:hover,
-            a[href="stats.html"]:hover {
-                background: white !important;
-                color: #667eea !important;
-                transform: scale(1.05);
-            }
-        </style>
-        </div>
-        
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 게임 검색..." oninput="filterGames()">
-        </div>
-        
-        <div class="filters">
-            <button class="filter-btn active" onclick="filterByTag('all')">전체</button>
-            <button class="filter-btn" onclick="filterByTag('아케이드')">아케이드</button>
-            <button class="filter-btn" onclick="filterByTag('퍼즐')">퍼즐</button>
-            <button class="filter-btn" onclick="filterByTag('액션')">액션</button>
-            <button class="filter-btn" onclick="filterByTag('전략')">전략</button>
-            <button class="filter-btn" onclick="filterByTag('클래식')">클래식</button>
+        <div class="header-content">
+            <h1>🎮 미니게임 아케이드</h1>
+            <div class="header-subtitle">
+                총 8개 게임 • 📱 모바일 지원
+            </div>
+            
+            <!-- 검색 + 액션 버튼 -->
+            <div class="search-actions">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 게임 검색..." oninput="filterGames()">
+                <a href="stats.html" class="action-btn">📊 통계</a>
+                <button class="action-btn" onclick="clearCache()">🔄 캐시</button>
+            </div>
+            
+            <!-- 카테고리 칩 (가로 스크롤) -->
+            <div class="categories">
+                <button class="category-chip active" onclick="filterByTag('all', this)">전체</button>
+                <button class="category-chip" onclick="filterByTag('아케이드', this)">🕹️ 아케이드</button>
+                <button class="category-chip" onclick="filterByTag('퍼즐', this)">🧩 퍼즐</button>
+                <button class="category-chip" onclick="filterByTag('액션', this)">⚡ 액션</button>
+                <button class="category-chip" onclick="filterByTag('전략', this)">🎯 전략</button>
+                <button class="category-chip" onclick="filterByTag('클래식', this)">🎲 클래식</button>
+            </div>
         </div>
     </div>
     
-    <div class="games-grid">
-        <a href="games/snake/index.html" class="game-card">
-            <div class="icon">🐍</div>
-            <h3>스네이크</h3>
-            <p>클래식 스네이크 게임. 먹이를 먹고 길어지세요!</p>
-            <div class="tags">
-                <span class="tag">아케이드</span>
-                <span class="tag">클래식</span>
-            </div>
-        </a>
+    <!-- 게임 그리드 -->
+    <div class="container">
+        <div class="games-grid" id="gamesGrid">
+            <a href="games/snake/index.html" class="game-card" data-tags="아케이드,클래식">
+                <div class="game-icon">🐍</div>
+                <div class="game-name">스네이크</div>
+                <div class="game-desc">클래식 뱀 게임</div>
+                <div class="game-tags">
+                    <span class="game-tag">아케이드</span>
+                    <span class="game-tag">클래식</span>
+                </div>
+            </a>
+            
+            <a href="games/memory/index.html" class="game-card" data-tags="퍼즐">
+                <div class="game-icon">🧠</div>
+                <div class="game-name">메모리 게임</div>
+                <div class="game-desc">같은 카드 찾기</div>
+                <div class="game-tags">
+                    <span class="game-tag">퍼즐</span>
+                </div>
+            </a>
+            
+            <a href="games/match3/index.html" class="game-card" data-tags="퍼즐">
+                <div class="game-icon">💎</div>
+                <div class="game-name">매치 3</div>
+                <div class="game-desc">보석 3개 맞추기</div>
+                <div class="game-tags">
+                    <span class="game-tag">퍼즐</span>
+                </div>
+            </a>
+            
+            <a href="games/simon/index.html" class="game-card" data-tags="퍼즐">
+                <div class="game-icon">🎵</div>
+                <div class="game-name">사이먼 세즈</div>
+                <div class="game-desc">순서 기억하기</div>
+                <div class="game-tags">
+                    <span class="game-tag">퍼즐</span>
+                </div>
+            </a>
+            
+            <a href="games/spaceshooter/index.html" class="game-card" data-tags="액션">
+                <div class="game-icon">🚀</div>
+                <div class="game-name">스페이스 슈터</div>
+                <div class="game-desc">적 우주선 격추</div>
+                <div class="game-tags">
+                    <span class="game-tag">액션</span>
+                </div>
+            </a>
+            
+            <a href="games/whackamole/index.html" class="game-card" data-tags="아케이드">
+                <div class="game-icon">🔨</div>
+                <div class="game-name">두더지 잡기</div>
+                <div class="game-desc">두더지를 빠르게</div>
+                <div class="game-tags">
+                    <span class="game-tag">아케이드</span>
+                </div>
+            </a>
+            
+            <a href="games/sokoban/index.html" class="game-card" data-tags="퍼즐,전략">
+                <div class="game-icon">📦</div>
+                <div class="game-name">소코반</div>
+                <div class="game-desc">상자 밀어 넣기</div>
+                <div class="game-tags">
+                    <span class="game-tag">퍼즐</span>
+                    <span class="game-tag">전략</span>
+                </div>
+            </a>
+            
+            <a href="games/blackjack/index.html" class="game-card" data-tags="전략,클래식">
+                <div class="game-icon">♠️</div>
+                <div class="game-name">블랙잭</div>
+                <div class="game-desc">21 카드 게임</div>
+                <div class="game-tags">
+                    <span class="game-tag">전략</span>
+                    <span class="game-tag">클래식</span>
+                </div>
+            </a>
+        </div>
         
-        
-        <a href="games/memory/index.html" class="game-card">
-            <div class="icon">🧠</div>
-            <h3>메모리 게임</h3>
-            <p>같은 카드를 찾아 모두 뒤집으세요.</p>
-            <div class="tags">
-                <span class="tag">퍼즐</span>
-                <span class="tag">기억력</span>
-            </div>
-        </a>
-        
-        <a href="games/match3/index.html" class="game-card">
-            <div class="icon">💎</div>
-            <h3>매치 3</h3>
-            <p>같은 색 보석을 3개 이상 맞춰 터뜨리세요!</p>
-            <div class="tags">
-                <span class="tag">퍼즐</span>
-                <span class="tag">캐주얼</span>
-            </div>
-        </a>
-        
-        <a href="games/simon/index.html" class="game-card">
-            <div class="icon">🔴🟢🟡🔵</div>
-            <h3>사이먼 세즈</h3>
-            <p>순서를 기억하고 따라하세요. 얼마나 오래 갈 수 있나요?</p>
-            <div class="tags">
-                <span class="tag">기억력</span>
-                <span class="tag">리듬</span>
-            </div>
-        </a>
-        
-        <a href="games/spaceshooter/index.html" class="game-card">
-            <div class="icon">🚀</div>
-            <h3>스페이스 슈터</h3>
-            <p>적 우주선을 격추하고 최대한 오래 살아남으세요!</p>
-            <div class="tags">
-                <span class="tag">슈팅</span>
-                <span class="tag">액션</span>
-            </div>
-        </a>
-        
-        <a href="games/whackamole/index.html" class="game-card">
-            <div class="icon">🔨</div>
-            <h3>두더지 잡기</h3>
-            <p>30초 안에 최대한 많은 두더지를 잡으세요!</p>
-            <div class="tags">
-                <span class="tag">반응속도</span>
-                <span class="tag">캐주얼</span>
-            </div>
-        </a>
-        
-        <a href="games/sokoban/index.html" class="game-card">
-            <div class="icon">📦</div>
-            <h3>소코반</h3>
-            <p>모든 상자를 목표 지점에 밀어넣는 퍼즐 게임!</p>
-            <div class="tags">
-                <span class="tag">퍼즐</span>
-                <span class="tag">전략</span>
-            </div>
-        </a>
-        
-        <a href="games/blackjack/index.html" class="game-card">
-            <div class="icon">♠️</div>
-            <h3>블랙잭</h3>
-            <p>21을 넘지 않으면서 딜러를 이기세요!</p>
-            <div class="tags">
-                <span class="tag">카드</span>
-                <span class="tag">전략</span>
-            </div>
-        </a>
+        <div class="empty-state" id="emptyState" style="display: none;">
+            😢 검색 결과가 없습니다
+        </div>
     </div>
     
+    <!-- 푸터 -->
     <div class="footer">
-        <p>Made with ❤️ by Claude | 2025-02-11 | <strong>8개 게임</strong></p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
-            GitHub: <a href="https://github.com/oringnam/minigames" target="_blank" style="color: white; text-decoration: underline;">oringnam/minigames</a>
-        </p>
+        <p>Made with ❤️ | 2026-02-11</p>
+        <p><a href="https://github.com/oringnam/minigames" target="_blank">GitHub</a></p>
     </div>
     
     <script>
+        // 캐시 새로고침
         async function clearCache() {
             try {
-                // Service Worker 캐시 클리어
                 if ('caches' in window) {
                     const cacheNames = await caches.keys();
                     await Promise.all(cacheNames.map(name => caches.delete(name)));
-                    console.log('캐시 클리어 완료:', cacheNames);
                 }
                 
-                // 성공 메시지
-                alert('✅ 캐시가 삭제되었습니다. 페이지를 새로고침합니다.');
-                
-                // Hard reload with cache busting
+                alert('✅ 캐시가 삭제되었습니다.');
                 const url = new URL(window.location.href);
                 url.searchParams.set('v', Date.now());
                 window.location.href = url.toString();
@@ -310,45 +408,59 @@
             }
         }
         
+        // 검색 필터
         function filterGames() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const cards = document.querySelectorAll('.game-card');
+            let visibleCount = 0;
             
             cards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const description = card.querySelector('p').textContent.toLowerCase();
+                const name = card.querySelector('.game-name').textContent.toLowerCase();
+                const desc = card.querySelector('.game-desc').textContent.toLowerCase();
                 
-                if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                    card.style.display = 'block';
+                if (name.includes(searchTerm) || desc.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
+            
+            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
         }
         
-        function filterByTag(tag) {
-            const cards = document.querySelectorAll('.game-card');
-            const buttons = document.querySelectorAll('.filter-btn');
+        // 카테고리 필터
+        function filterByTag(tag, button) {
+            // 버튼 활성화
+            document.querySelectorAll('.category-chip').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
             
-            // 버튼 활성화 상태 업데이트
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // 검색 초기화
+            document.getElementById('searchInput').value = '';
+            
+            const cards = document.querySelectorAll('.game-card');
+            let visibleCount = 0;
             
             if (tag === 'all') {
-                cards.forEach(card => card.style.display = 'block');
+                cards.forEach(card => {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                });
             } else {
                 cards.forEach(card => {
-                    const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.textContent);
-                    if (tags.includes(tag)) {
-                        card.style.display = 'block';
+                    const tags = card.getAttribute('data-tags');
+                    if (tags && tags.includes(tag)) {
+                        card.style.display = 'flex';
+                        visibleCount++;
                     } else {
                         card.style.display = 'none';
                     }
                 });
             }
             
-            // 검색 초기화
-            document.getElementById('searchInput').value = '';
+            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
         }
     </script>
 </body>
