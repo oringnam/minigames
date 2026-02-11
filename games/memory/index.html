@@ -203,41 +203,6 @@
             40% { transform: scale(1); }
         }
         
-        .buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -295,7 +260,7 @@
         
         <div class="memory-board" id="board"></div>
         
-        <div class="buttons">
+        <div class="btn-group">
             <button class="btn" id="startBtn" onclick="startGame()">게임 시작</button>
             <a href="../../index.html" class="btn">← 메인으로</a>
         </div>

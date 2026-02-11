@@ -891,21 +891,24 @@ if (typeof document !== 'undefined') {
         
         .btn {
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
             color: white;
-            border: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 25px;
             font-size: 1em;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         
         .btn:disabled {
