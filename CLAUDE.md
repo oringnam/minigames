@@ -34,10 +34,15 @@ minigames/
 
 | 게임 | 디렉토리 | 특징 | 공통 모듈 적용 |
 |------|----------|------|----------------|
-| 🐍 Snake | `games/snake/` | 파티클, 사운드, 진동, 액자 테두리 | ⏳ 예정 |
-| 🧠 Memory | `games/memory/` | 3D 카드 플립, 난이도 시스템 | ⏳ 예정 |
-| 💎 Match-3 | `games/match3/` | 빅매치 감지, 파워업 | ⏳ 예정 |
+| 🐍 Snake | `games/snake/` | 파티클, 사운드, 진동, 액자 테두리 | ✅ 완료 |
+| 🧠 Memory | `games/memory/` | 3D 카드 플립, 난이도 시스템 | ✅ 완료 |
+| 💎 Match-3 | `games/match3/` | 빅매치 감지, 파워업 | ✅ 완료 |
 | 🎵 Simon Says | `games/simon/` | 마일스톤 사운드, 대형 버튼 | ✅ 완료 |
+
+**모든 게임이 GameUI + GameUtils 적용 완료!**
+- 통일된 점수판 (메모리 게임 스타일)
+- 통일된 모달 (게임 종료/공유)
+- 통일된 카톡 공유 기능
 
 **제거된 게임** (2026-02-11):
 - 🚀 Space Shooter, 📦 Sokoban, 🃏 Blackjack, 🔨 Whack-a-Mole
