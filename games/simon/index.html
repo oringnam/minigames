@@ -195,6 +195,9 @@
         
         highScoreEl.textContent = highScore;
         
+        // 사운드
+        const gameSounds = new GameSounds();
+        
         const sounds = {
             0: 262, // C
             1: 330, // E
@@ -220,10 +223,15 @@
             oscillator.stop(audioContext.currentTime + duration / 1000);
         }
         
-        function lightButton(index) {
+        function lightButton(index, isPlayerClick = false) {
             const button = buttons[index];
             button.classList.add('lit');
             playSound(sounds[index]);
+            
+            // 📳 플레이어가 클릭했을 때만 진동
+            if (isPlayerClick) {
+                vibrate(30);
+            }
             
             setTimeout(() => {
                 button.classList.remove('lit');
@@ -264,23 +272,39 @@
                 highScore = level;
                 localStorage.setItem('simonHighScore', highScore);
                 highScoreEl.textContent = highScore;
+                
+                // 🎵 신기록!
+                gameSounds.play('powerup');
+                vibrate([100, 50, 100]);
+            }
+            
+            // 레벨 5, 10, 15... 마다 축하 사운드
+            if (level % 5 === 0 && level > 0) {
+                gameSounds.play('coin');
             }
         }
         
         function checkPlayerInput(index) {
             if (!isPlayerTurn || !isPlaying) return;
             
-            lightButton(index);
+            lightButton(index, true); // 플레이어 클릭
             playerSequence.push(index);
             
             const currentStep = playerSequence.length - 1;
             
             if (playerSequence[currentStep] !== sequence[currentStep]) {
+                // 🎵 오답!
+                gameSounds.play('wrong');
+                vibrate(200);
                 gameOver();
                 return;
             }
             
             if (playerSequence.length === sequence.length) {
+                // 🎵 정답!
+                gameSounds.play('success');
+                vibrate([50, 30, 50]);
+                
                 playerSequence = [];
                 messageEl.textContent = '정답! 다음 레벨...';
                 disableButtons();
@@ -297,8 +321,10 @@
             disableButtons();
             messageEl.textContent = `게임 오버! 최종 레벨: ${level}`;
             
-            // 에러 사운드
+            // 🎵 게임오버 사운드 (Web Audio + GameSounds)
             playSound(100, 500);
+            gameSounds.play('gameover');
+            vibrate([100, 50, 100, 50, 200]);
             
             // 복사 버튼
             setTimeout(() => {
@@ -344,6 +370,9 @@
             
             levelEl.textContent = level;
             messageEl.textContent = '게임 시작!';
+            
+            // 🎵 시작 사운드
+            gameSounds.play('click');
             
             setTimeout(() => {
                 addToSequence();
