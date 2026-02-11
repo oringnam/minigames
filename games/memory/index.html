@@ -45,7 +45,9 @@
         .game-info {
             display: flex;
             flex-direction: row;
+            flex-wrap: nowrap;
             justify-content: center;
+            align-items: stretch;
             margin-bottom: 20px;
             gap: 10px;
             width: 100%;
@@ -56,7 +58,8 @@
             background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
             padding: 10px 15px;
             border-radius: 15px;
-            flex: 1;
+            flex: 1 1 0;
+            min-width: 0;
             box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
         }
         
@@ -207,14 +210,15 @@
             
             .game-info {
                 flex-direction: row;
+                flex-wrap: nowrap;
                 gap: 6px;
                 margin-bottom: 15px;
             }
             
             .info-box {
                 padding: 8px 10px;
-                min-width: auto;
-                flex: 1;
+                min-width: 0;
+                flex: 1 1 0;
             }
             
             .info-box h3 {
