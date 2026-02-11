@@ -314,6 +314,7 @@
         let matchedPairs = 0;
         let canFlip = false;
         let isShuffling = false;
+        let combo = 0; // 연속 매칭 콤보
         
         // 점수판 생성 (GameUI)
         const scoreBoard = GameUI.createScoreBoard({
@@ -334,7 +335,13 @@
         function startGame() {
             stage = 1;
             lives = 5;
+            combo = 0;
             updateUI();
+            
+            // 플레이 추적
+            GameUtils.trackPlay('memory');
+            GameUtils.startTimer('memory');
+            
             startStage();
         }
         
@@ -491,8 +498,17 @@
             
             if (card1.dataset.emoji === card2.dataset.emoji) {
                 // 매치!
-                sounds.play('match');
-                vibrate([50, 30, 50]);
+                combo++;
+                
+                // 콤보에 따른 사운드/진동
+                if (combo >= 3) {
+                    sounds.play('powerup');
+                    vibrate([100, 50, 100]);
+                    setMessage(`🔥 ${combo} 콤보!`, false);
+                } else {
+                    sounds.play('match');
+                    vibrate([50, 30, 50]);
+                }
                 
                 setTimeout(() => {
                     card1.classList.add('matched');
@@ -506,6 +522,7 @@
                 }, 500);
             } else {
                 // 틀림!
+                combo = 0; // 콤보 리셋
                 sounds.play('wrong');
                 vibrate(100);
                 
