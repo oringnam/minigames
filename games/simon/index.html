@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사이먼 세즈</title>
     <link rel="stylesheet" href="../../mobile-layout.css">
+    <script src="../../game-sounds.js"></script>
+    <script src="../../game-utils.js"></script>
     <style>
         * {
             margin: 0;
@@ -29,46 +31,28 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            max-width: 500px;
+            width: 100%;
         }
         
         h1 {
             color: #243B55;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-align: center;
-            width: 100%;
-        }
-        
-        .score {
+            margin-bottom: 20px;
             font-size: 2em;
-            margin-bottom: 30px;
-            color: #243B55;
-            text-align: center;
-            width: 100%;
-        }
-        
-        .score span {
-            font-weight: bold;
-            color: #e74c3c;
         }
         
         .game-board {
             display: grid;
-            grid-template-columns: repeat(2, 150px);
-            grid-template-rows: repeat(2, 150px);
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
             gap: 15px;
-            margin: 0 auto 30px;
-            width: fit-content;
-            justify-self: center;
+            margin: 20px auto;
+            max-width: 350px;
+            aspect-ratio: 1;
         }
         
         .button {
-            width: 150px;
-            height: 150px;
+            aspect-ratio: 1;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s;
@@ -77,6 +61,7 @@
             align-items: center;
             justify-content: center;
             font-size: 3em;
+            border: none;
         }
         
         .button:active {
@@ -108,27 +93,27 @@
         .button.disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            pointer-events: none;
         }
         
-        .controls {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 20px;
-            text-align: center;
-            width: 100%;
+        .message {
+            min-height: 30px;
+            font-size: 1.1em;
+            color: #243B55;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
         
         .btn-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
-            width: 100%;
-            align-items: center;
+            flex-wrap: wrap;
         }
         
         .btn {
             padding: 12px 30px;
-            background: #243B55;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 25px;
@@ -136,121 +121,45 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            transition: background 0.3s;
-            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
         }
         
         .btn:hover {
-            background: #141E30;
-        }
-        
-        .message {
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: #243B55;
-            font-weight: bold;
-            min-height: 30px;
-            text-align: center;
-            width: 100%;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
         }
         
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
             .container {
                 padding: 20px;
-                width: 100%;
-                max-width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
             }
             
             h1 {
-                font-size: 1.8em;
-                margin-bottom: 15px;
-                text-align: center;
-                width: 100%;
-            }
-            
-            .score {
-                font-size: 1.3em;
-                margin-bottom: 20px;
-                text-align: center;
-                width: 100%;
-            }
-            
-            .game-board {
-                grid-template-columns: repeat(2, calc((100vw - 70px) / 2));
-                grid-template-rows: repeat(2, calc((100vw - 70px) / 2));
-                gap: 10px;
-                max-width: 400px;
-                margin: 0 auto 20px;
+                font-size: 1.5em;
             }
             
             .button {
-                width: 100%;
-                height: 100%;
-                font-size: 4em;
-                border-radius: 15px;
-            }
-            
-            .controls {
-                font-size: 0.85em;
-                margin-bottom: 15px;
-                text-align: center;
-                width: 100%;
-            }
-            
-            .message {
-                font-size: 1.1em;
-                margin-top: 15px;
-                color: #243B55;
-                text-align: center;
-                width: 100%;
-            }
-            
-            .btn-group {
-                flex-direction: column;
-                gap: 10px;
-                width: 100%;
-                max-width: 400px;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 400px;
-                display: block;
-                margin: 0 auto;
+                font-size: 2.5em;
             }
         }
     </style>
-    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🔴🟢🟡🔵 사이먼 세즈</h1>
         
-        <div class="score">
-            레벨: <span id="level">0</span> | 최고: <span id="highScore">0</span>
-        </div>
+        <!-- 점수판 (GameUI로 생성) -->
+        <div id="scoreBoard"></div>
+        
+        <div class="message" id="message">순서를 기억하고 따라하세요!</div>
         
         <div class="game-board">
-            <div class="button red" data-color="0">🔴</div>
-            <div class="button green" data-color="1">🟢</div>
-            <div class="button yellow" data-color="2">🟡</div>
-            <div class="button blue" data-color="3">🔵</div>
+            <button class="button red" data-color="0">🔴</button>
+            <button class="button green" data-color="1">🟢</button>
+            <button class="button yellow" data-color="2">🟡</button>
+            <button class="button blue" data-color="3">🔵</button>
         </div>
-        
-        <div class="controls">
-            순서를 기억하고 같은 순서로 클릭하세요!
-        </div>
-        
-        <div class="message" id="message"></div>
         
         <div class="btn-group">
             <button class="btn" onclick="startGame()">시작</button>
@@ -261,29 +170,33 @@
     <script>
         const buttons = document.querySelectorAll('.button');
         const messageEl = document.getElementById('message');
-        const levelEl = document.getElementById('level');
-        const highScoreEl = document.getElementById('highScore');
+        const sounds = new GameSounds();
         
         let sequence = [];
         let playerSequence = [];
         let level = 0;
-        let highScore = localStorage.getItem('simonHighScore') || 0;
+        let highScore = GameUtils.getScore('simon', 'highScore', 0);
         let isPlaying = false;
         let isPlayerTurn = false;
         
-        highScoreEl.textContent = highScore;
+        // 점수판 생성 (GameUI)
+        const scoreBoard = GameUI.createScoreBoard({
+            items: [
+                { id: 'level', label: '레벨', value: 0 },
+                { id: 'highScore', label: '최고', value: highScore }
+            ],
+            containerId: 'scoreBoard'
+        });
         
-        // 사운드
-        const gameSounds = new GameSounds();
-        
-        const sounds = {
+        // 버튼 주파수
+        const tones = {
             0: 262, // C
             1: 330, // E
             2: 392, // G
             3: 494  // B
         };
         
-        function playSound(freq, duration = 300) {
+        function playTone(freq, duration = 300) {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
@@ -304,9 +217,8 @@
         function lightButton(index, isPlayerClick = false) {
             const button = buttons[index];
             button.classList.add('lit');
-            playSound(sounds[index]);
+            playTone(tones[index]);
             
-            // 📳 플레이어가 클릭했을 때만 진동
             if (isPlayerClick) {
                 vibrate(30);
             }
@@ -344,43 +256,39 @@
             const randomIndex = Math.floor(Math.random() * 4);
             sequence.push(randomIndex);
             level++;
-            levelEl.textContent = level;
+            scoreBoard.update('level', level);
             
             if (level > highScore) {
                 highScore = level;
-                localStorage.setItem('simonHighScore', highScore);
-                highScoreEl.textContent = highScore;
-                
-                // 🎵 신기록!
-                gameSounds.play('powerup');
+                GameUtils.saveScore('simon', 'highScore', highScore);
+                scoreBoard.update('highScore', highScore);
+                sounds.play('powerup');
                 vibrate([100, 50, 100]);
             }
             
             // 레벨 5, 10, 15... 마다 축하 사운드
             if (level % 5 === 0 && level > 0) {
-                gameSounds.play('coin');
+                sounds.play('coin');
             }
         }
         
         function checkPlayerInput(index) {
             if (!isPlayerTurn || !isPlaying) return;
             
-            lightButton(index, true); // 플레이어 클릭
+            lightButton(index, true);
             playerSequence.push(index);
             
             const currentStep = playerSequence.length - 1;
             
             if (playerSequence[currentStep] !== sequence[currentStep]) {
-                // 🎵 오답!
-                gameSounds.play('wrong');
+                sounds.play('wrong');
                 vibrate(200);
                 gameOver();
                 return;
             }
             
             if (playerSequence.length === sequence.length) {
-                // 🎵 정답!
-                gameSounds.play('success');
+                sounds.play('success');
                 vibrate([50, 30, 50]);
                 
                 playerSequence = [];
@@ -397,47 +305,35 @@
         function gameOver() {
             isPlaying = false;
             disableButtons();
-            messageEl.textContent = `게임 오버! 최종 레벨: ${level}`;
+            messageEl.textContent = '게임 오버!';
             
-            // 🎵 게임오버 사운드 (Web Audio + GameSounds)
-            playSound(100, 500);
-            gameSounds.play('gameover');
+            playTone(100, 500);
+            sounds.play('gameover');
             vibrate([100, 50, 100, 50, 200]);
             
-            // 복사 버튼
+            // 모달 표시 (GameUtils)
             setTimeout(() => {
-                if (confirm(`게임 오버!\n\n🎯 최종 레벨: ${level}\n🏆 최고: ${highScore}\n\n📋 점수를 복사하시겠습니까?`)) {
-                    shareScore();
-                }
+                GameUtils.createModal({
+                    title: '💀 게임 오버!',
+                    stats: [
+                        { label: '최종 레벨', value: level },
+                        { label: '최고 레벨', value: highScore }
+                    ],
+                    buttons: [
+                        {
+                            text: '📱 카톡 공유',
+                            action: () => {
+                                const text = `🔴🟢🟡🔵 사이먼 세즈\n\n레벨: ${level}\n최고: ${highScore}\n\nhttps://oringnam.github.io/minigames/`;
+                                GameUtils.copyToClipboard(text);
+                            }
+                        },
+                        {
+                            text: '다시 하기',
+                            action: startGame
+                        }
+                    ]
+                });
             }, 500);
-        }
-        
-        function shareScore() {
-            const text = `🔴🟢🟡🔵 사이먼 세즈\n\n🎯 레벨: ${level}\n🏆 최고: ${highScore}\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('📋 클립보드에 복사되었습니다!');
-                }).catch(() => fallbackCopy(text));
-            } else {
-                fallbackCopy(text);
-            }
-        }
-        
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                alert('📋 클립보드에 복사되었습니다!');
-            } catch (err) {
-                alert('복사 실패:\n\n' + text);
-            }
-            document.body.removeChild(textarea);
         }
         
         function startGame() {
@@ -446,11 +342,9 @@
             level = 0;
             isPlaying = true;
             
-            levelEl.textContent = level;
+            scoreBoard.update('level', 0);
             messageEl.textContent = '게임 시작!';
-            
-            // 🎵 시작 사운드
-            gameSounds.play('click');
+            sounds.play('click');
             
             setTimeout(() => {
                 addToSequence();
@@ -458,6 +352,7 @@
             }, 1000);
         }
         
+        // 버튼 이벤트
         buttons.forEach((button, index) => {
             button.addEventListener('click', () => {
                 checkPlayerInput(index);
