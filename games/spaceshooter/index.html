@@ -129,6 +129,7 @@
         }
     </style>
     <script src="../../mobile-controls.js"></script>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
@@ -171,6 +172,9 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
+        // 사운드 초기화
+        const sounds = new GameSounds();
+        
         // 모바일 화면 크기 조정
         if (window.innerWidth < 768) {
             const maxWidth = Math.min(window.innerWidth - 60, 350);
@@ -188,7 +192,7 @@
         
         let bullets = [];
         let enemies = [];
-        let particles = [];
+        let visualParticles = [];
         let score = 0;
         let lives = 3;
         let level = 1;
@@ -252,34 +256,33 @@
                     enemies.splice(index, 1);
                     lives--;
                     document.getElementById('lives').textContent = lives;
+                    
+                    // 🎵 피격 사운드 + 진동 + 셰이크
+                    sounds.play('error');
+                    vibrate(100);
+                    screenShake(canvas, 5);
+                    
                     if (lives <= 0) gameOver();
                 }
             });
         }
         
-        function drawParticles() {
-            particles.forEach((p, index) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
+        function drawVisualParticles() {
+            for (let i = visualParticles.length - 1; i >= 0; i--) {
+                const p = visualParticles[i];
+                p.update();
+                p.draw(ctx);
                 
-                ctx.fillStyle = `rgba(${p.color}, ${p.life / 30})`;
-                ctx.fillRect(p.x, p.y, 3, 3);
-                
-                if (p.life <= 0) particles.splice(index, 1);
-            });
+                if (p.isDead()) {
+                    visualParticles.splice(i, 1);
+                }
+            }
         }
         
-        function createExplosion(x, y) {
-            for (let i = 0; i < 15; i++) {
-                particles.push({
-                    x,
-                    y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
-                    life: 30,
-                    color: '255, 150, 0'
-                });
+        function createExplosion(x, y, color = '#FFA500') {
+            // game-sounds.js의 ParticleEffect 사용
+            for (let i = 0; i < 20; i++) {
+                visualParticles.push(new ParticleEffect(x, y, color));
             }
         }
         
@@ -288,7 +291,7 @@
                 x: Math.random() * (canvas.width - 40) + 20,
                 y: -20,
                 size: 15 + Math.random() * 10,
-                speed: 0.8 + level * 0.2, // 속도 낮춤
+                speed: 0.8 + level * 0.2,
                 color: ['#ef4444', '#f59e0b', '#a855f7'][Math.floor(Math.random() * 3)]
             });
         }
@@ -301,15 +304,35 @@
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
                     if (distance < enemy.size + 5) {
-                        createExplosion(enemy.x, enemy.y);
+                        // 🎵 폭발 사운드 + 파티클 + 진동
+                        sounds.play('pop');
+                        vibrate(30);
+                        createExplosion(enemy.x, enemy.y, enemy.color);
+                        
                         enemies.splice(eIndex, 1);
                         bullets.splice(bIndex, 1);
+                        
+                        const oldScore = score;
                         score += 10;
                         document.getElementById('score').textContent = score;
                         
-                        if (score % 200 === 0) {
+                        // 레벨업 체크
+                        if (Math.floor(score / 200) > Math.floor(oldScore / 200)) {
                             level++;
                             document.getElementById('level').textContent = level;
+                            
+                            // 🎵 레벨업!
+                            sounds.play('powerup');
+                            vibrate([50, 50, 50]);
+                            
+                            // 화면 전체에 축하 파티클
+                            for (let i = 0; i < 50; i++) {
+                                visualParticles.push(new ParticleEffect(
+                                    Math.random() * canvas.width,
+                                    Math.random() * canvas.height,
+                                    '#FFD700'
+                                ));
+                            }
                         }
                     }
                 });
@@ -321,7 +344,12 @@
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance < enemy.size + 20) {
-                    createExplosion(enemy.x, enemy.y);
+                    // 🎵 플레이어 피격!
+                    sounds.play('error');
+                    vibrate(200);
+                    screenShake(canvas, 10);
+                    
+                    createExplosion(enemy.x, enemy.y, '#FF6B6B');
                     enemies.splice(enemies.indexOf(enemy), 1);
                     lives--;
                     document.getElementById('lives').textContent = lives;
@@ -332,11 +360,16 @@
         
         function shoot() {
             if (!gameRunning) return;
+            
             bullets.push({
                 x: player.x,
                 y: player.y - 20,
                 speed: 8
             });
+            
+            // 🎵 발사 사운드 + 진동
+            sounds.play('click');
+            vibrate(10);
         }
         
         function update() {
@@ -348,8 +381,8 @@
             player.x += (mouseX - player.x) * 0.1;
             player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
             
-            // 적 생성 (주기 늦춤)
-            if (frameCount % Math.max(40 - level * 2, 20) === 0) { // 생성 주기 늦춤
+            // 적 생성
+            if (frameCount % Math.max(40 - level * 2, 20) === 0) {
                 spawnEnemy();
             }
             
@@ -371,7 +404,7 @@
                 ctx.fillRect(x, y, 2, 2);
             }
             
-            drawParticles();
+            drawVisualParticles();
             drawEnemies();
             drawBullets();
             drawPlayer();
@@ -381,7 +414,7 @@
             player.x = canvas.width / 2;
             bullets = [];
             enemies = [];
-            particles = [];
+            visualParticles = [];
             score = 0;
             lives = 3;
             level = 1;
@@ -393,13 +426,36 @@
             document.getElementById('level').textContent = level;
             document.getElementById('gameOver').style.display = 'none';
             
+            // 🎵 시작 사운드
+            sounds.play('click');
+            
             update();
         }
         
         function gameOver() {
+            if (!gameRunning) return;
+            
             gameRunning = false;
+            
+            // 🎵 게임오버 사운드 + 진동 + 셰이크
+            sounds.play('gameover');
+            vibrate([100, 50, 100, 50, 200]);
+            screenShake(canvas, 15);
+            
+            // 폭발 파티클
+            for (let i = 0; i < 50; i++) {
+                visualParticles.push(new ParticleEffect(
+                    player.x,
+                    player.y,
+                    ['#FF6B6B', '#FFA500', '#FFD700'][Math.floor(Math.random() * 3)]
+                ));
+            }
+            
             document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOver').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('gameOver').style.display = 'block';
+            }, 500);
         }
         
         canvas.addEventListener('mousemove', (e) => {
