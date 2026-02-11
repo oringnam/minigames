@@ -31,6 +31,12 @@
             font-size: 3em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .header p {
@@ -107,6 +113,7 @@
     <div class="header">
         <h1>🎮 미니게임 아케이드</h1>
         <p>다양한 장르의 미니게임을 즐겨보세요!</p>
+        <a href="stats.html" style="display: inline-block; margin-top: 15px; padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; border: 2px solid white; transition: all 0.3s;">📊 통계 보기</a>
     </div>
     
     <div class="games-grid">
@@ -187,6 +194,36 @@
             <div class="tags">
                 <span class="tag">클래식</span>
                 <span class="tag">스포츠</span>
+            </div>
+        </a>
+        
+        <a href="games/match3/index.html" class="game-card">
+            <div class="icon">💎</div>
+            <h3>매치 3</h3>
+            <p>같은 색 보석을 3개 이상 맞춰 터뜨리세요!</p>
+            <div class="tags">
+                <span class="tag">퍼즐</span>
+                <span class="tag">캐주얼</span>
+            </div>
+        </a>
+        
+        <a href="games/maze/index.html" class="game-card">
+            <div class="icon">🌀</div>
+            <h3>미로 탈출</h3>
+            <p>랜덤 생성 미로를 최대한 빨리 탈출하세요!</p>
+            <div class="tags">
+                <span class="tag">퍼즐</span>
+                <span class="tag">전략</span>
+            </div>
+        </a>
+        
+        <a href="games/simon/index.html" class="game-card">
+            <div class="icon">🔴🟢🟡🔵</div>
+            <h3>사이먼 세즈</h3>
+            <p>순서를 기억하고 따라하세요. 얼마나 오래 갈 수 있나요?</p>
+            <div class="tags">
+                <span class="tag">기억력</span>
+                <span class="tag">리듬</span>
             </div>
         </a>
     </div>
