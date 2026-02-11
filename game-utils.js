@@ -883,10 +883,10 @@ if (typeof document !== 'undefined') {
         /* 버튼 그룹 */
         .btn-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             margin-top: 30px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
         
         .btn {
@@ -938,6 +938,15 @@ if (typeof document !== 'undefined') {
             
             .score-item p {
                 font-size: 1.1em;
+            }
+            
+            .btn-group {
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.95em;
             }
         }
     `;
