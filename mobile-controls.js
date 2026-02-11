@@ -50,11 +50,12 @@ class VirtualJoystick {
     constructor(container, options = {}) {
         this.container = container;
         this.options = {
-            radius: options.radius || 60,
-            innerRadius: options.innerRadius || 30,
+            radius: options.radius || 70,
+            innerRadius: options.innerRadius || 35,
             color: options.color || 'rgba(100, 100, 100, 0.8)',
             innerColor: options.innerColor || 'rgba(200, 200, 200, 0.9)',
             position: options.position || 'bottom-left',
+            deadzone: options.deadzone || 0.2,
             ...options
         };
         
