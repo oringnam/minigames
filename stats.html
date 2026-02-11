@@ -162,13 +162,13 @@
         
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>🏆 총 플레이 시간</h3>
-                <div class="value" id="totalTime">0</div>
-                <div class="label">분</div>
+                <h3>🎮 총 플레이 횟수</h3>
+                <div class="value" id="totalPlays">0</div>
+                <div class="label">회</div>
             </div>
             
             <div class="stat-card">
-                <h3>🎮 총 게임 수</h3>
+                <h3>🏆 총 게임 수</h3>
                 <div class="value" id="totalGames">4</div>
                 <div class="label">개</div>
             </div>
@@ -230,15 +230,19 @@
             
             document.getElementById('bestGame').textContent = bestGameName;
             
-            // 총 플레이 시간은 임의로 계산 (실제로는 tracking 필요)
-            const totalTime = Math.floor(Math.random() * 120) + 10;
-            document.getElementById('totalTime').textContent = totalTime;
+            // 총 플레이 횟수 계산
+            let totalPlays = 0;
+            records.forEach(record => {
+                totalPlays += GameUtils.getPlayCount(record.gameId);
+            });
+            document.getElementById('totalPlays').textContent = totalPlays || '-';
         }
         
         function clearAllRecords() {
             if (confirm('정말로 모든 기록을 초기화하시겠습니까?')) {
                 records.forEach(record => {
                     GameUtils.clearScore(record.gameId, record.key);
+                    GameUtils.clearScore(record.gameId, 'totalPlays');
                 });
                 alert('모든 기록이 초기화되었습니다.');
                 loadStats();
