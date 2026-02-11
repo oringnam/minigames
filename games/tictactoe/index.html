@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>틱택토</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #f5576c;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+        
+        .stat-box {
+            background: #f8f8f8;
+            padding: 15px 30px;
+            border-radius: 10px;
+        }
+        
+        .stat-box h3 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-box p {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f5576c;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-template-rows: repeat(3, 120px);
+            gap: 10px;
+            margin: 0 auto 30px;
+        }
+        
+        .cell {
+            background: #f8f8f8;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .cell:hover:not(.taken) {
+            background: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .cell.taken {
+            cursor: not-allowed;
+        }
+        
+        .cell.winner {
+            background: #2ecc71;
+            color: white;
+            animation: win 0.5s ease-in-out;
+        }
+        
+        @keyframes win {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .message {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #f5576c;
+            margin-bottom: 20px;
+            min-height: 40px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #f093fb;
+        }
+        
+        .difficulty {
+            margin-bottom: 20px;
+        }
+        
+        .difficulty button {
+            padding: 8px 20px;
+            margin: 0 5px;
+            background: #f8f8f8;
+            border: 2px solid #f5576c;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty button.active {
+            background: #f5576c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⭕ 틱택토 ❌</h1>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <h3>승리</h3>
+                <p id="wins">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>패배</h3>
+                <p id="losses">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>무승부</h3>
+                <p id="draws">0</p>
+            </div>
+        </div>
+        
+        <div class="difficulty">
+            <button class="active" onclick="setDifficulty('easy')">쉬움</button>
+            <button onclick="setDifficulty('medium')">보통</button>
+            <button onclick="setDifficulty('hard')">어려움</button>
+        </div>
+        
+        <div class="message" id="message">당신의 차례 (⭕)</div>
+        
+        <div class="board" id="board"></div>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="resetGame()">새 게임</button>
+            <a href="../../index.html" class="btn">← 메인으로</a>
+        </div>
+    </div>
+    
+    <script>
+        const board = Array(9).fill(null);
+        let currentPlayer = 'O';
+        let gameActive = true;
+        let difficulty = 'easy';
+        let wins = 0, losses = 0, draws = 0;
+        
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // 가로
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // 세로
+            [0, 4, 8], [2, 4, 6]              // 대각선
+        ];
+        
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleClick(i));
+                boardElement.appendChild(cell);
+            }
+        }
+        
+        function handleClick(index) {
+            if (!gameActive || board[index]) return;
+            
+            makeMove(index, 'O');
+            
+            if (gameActive) {
+                setTimeout(aiMove, 500);
+            }
+        }
+        
+        function makeMove(index, player) {
+            board[index] = player;
+            updateBoard();
+            checkWinner();
+        }
+        
+        function aiMove() {
+            if (!gameActive) return;
+            
+            let move;
+            
+            if (difficulty === 'easy') {
+                move = getRandomMove();
+            } else if (difficulty === 'medium') {
+                move = Math.random() < 0.5 ? getBestMove() : getRandomMove();
+            } else {
+                move = getBestMove();
+            }
+            
+            if (move !== -1) {
+                makeMove(move, 'X');
+            }
+        }
+        
+        function getRandomMove() {
+            const available = board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+            return available.length > 0 ? available[Math.floor(Math.random() * available.length)] : -1;
+        }
+        
+        function getBestMove() {
+            // 승리할 수 있는 수 찾기
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    board[i] = 'X';
+                    if (checkWinningMove()) {
+                        board[i] = null;
+                        return i;
+                    }
+                    board[i] = null;
+                }
+            }
+            
+            // 상대 승리 막기
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    board[i] = 'O';
+                    if (checkWinningMove()) {
+                        board[i] = null;
+                        return i;
+                    }
+                    board[i] = null;
+                }
+            }
+            
+            // 중앙 우선
+            if (board[4] === null) return 4;
+            
+            // 코너 우선
+            const corners = [0, 2, 6, 8];
+            for (let corner of corners) {
+                if (board[corner] === null) return corner;
+            }
+            
+            return getRandomMove();
+        }
+        
+        function checkWinningMove() {
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+        
+        function updateBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = board[index] || '';
+                cell.className = 'cell' + (board[index] ? ' taken' : '');
+            });
+        }
+        
+        function checkWinner() {
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    gameActive = false;
+                    highlightWinner(pattern);
+                    
+                    if (board[a] === 'O') {
+                        wins++;
+                        document.getElementById('wins').textContent = wins;
+                        document.getElementById('message').textContent = '🎉 승리!';
+                    } else {
+                        losses++;
+                        document.getElementById('losses').textContent = losses;
+                        document.getElementById('message').textContent = '😢 패배!';
+                    }
+                    return;
+                }
+            }
+            
+            if (board.every(cell => cell !== null)) {
+                gameActive = false;
+                draws++;
+                document.getElementById('draws').textContent = draws;
+                document.getElementById('message').textContent = '무승부!';
+            }
+        }
+        
+        function highlightWinner(pattern) {
+            const cells = document.querySelectorAll('.cell');
+            pattern.forEach(index => {
+                cells[index].classList.add('winner');
+            });
+        }
+        
+        function resetGame() {
+            board.fill(null);
+            gameActive = true;
+            currentPlayer = 'O';
+            document.getElementById('message').textContent = '당신의 차례 (⭕)';
+            createBoard();
+        }
+        
+        function setDifficulty(level) {
+            difficulty = level;
+            const buttons = document.querySelectorAll('.difficulty button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            resetGame();
+        }
+        
+        createBoard();
+    </script>
+</body>
+</html>

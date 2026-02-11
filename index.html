@@ -44,6 +44,46 @@
             opacity: 0.9;
         }
         
+        .search-bar {
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 15px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            outline: none;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .filter-btn {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+        }
+        
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -112,8 +152,21 @@
 <body>
     <div class="header">
         <h1>🎮 미니게임 아케이드</h1>
-        <p>다양한 장르의 미니게임을 즐겨보세요!</p>
+        <p>다양한 장르의 미니게임을 즐겨보세요! <strong>총 17개 게임</strong></p>
         <a href="stats.html" style="display: inline-block; margin-top: 15px; padding: 10px 25px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 20px; border: 2px solid white; transition: all 0.3s;">📊 통계 보기</a>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 게임 검색..." oninput="filterGames()">
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterByTag('all')">전체</button>
+            <button class="filter-btn" onclick="filterByTag('아케이드')">아케이드</button>
+            <button class="filter-btn" onclick="filterByTag('퍼즐')">퍼즐</button>
+            <button class="filter-btn" onclick="filterByTag('액션')">액션</button>
+            <button class="filter-btn" onclick="filterByTag('전략')">전략</button>
+            <button class="filter-btn" onclick="filterByTag('클래식')">클래식</button>
+        </div>
     </div>
     
     <div class="games-grid">
@@ -276,10 +329,63 @@
                 <span class="tag">전략</span>
             </div>
         </a>
+        
+        <a href="games/tictactoe/index.html" class="game-card">
+            <div class="icon">⭕❌</div>
+            <h3>틱택토</h3>
+            <p>3개를 먼저 만들면 승리! AI와 대결하세요.</p>
+            <div class="tags">
+                <span class="tag">클래식</span>
+                <span class="tag">전략</span>
+            </div>
+        </a>
     </div>
     
     <div class="footer">
         <p>Made with ❤️ | 계속 업데이트 중...</p>
     </div>
+    
+    <script>
+        function filterGames() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.game-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterByTag(tag) {
+            const cards = document.querySelectorAll('.game-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // 버튼 활성화 상태 업데이트
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tag === 'all') {
+                cards.forEach(card => card.style.display = 'block');
+            } else {
+                cards.forEach(card => {
+                    const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.textContent);
+                    if (tags.includes(tag)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            // 검색 초기화
+            document.getElementById('searchInput').value = '';
+        }
+    </script>
 </body>
 </html>
