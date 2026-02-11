@@ -189,11 +189,183 @@ class GameUtils {
 }
 
 /**
- * 모달 기본 스타일 (자동 주입)
+ * GameUI - 공통 UI 컴포넌트 (메모리 게임 스타일)
+ */
+class GameUI {
+    /**
+     * 점수판 생성 (메모리 게임 스타일)
+     * @param {Object} options
+     * @param {Array} options.items - [{ id: 'score', label: '점수', value: 0 }, ...]
+     * @param {string} options.containerId - 점수판을 넣을 컨테이너 ID (없으면 body에 추가)
+     * @returns {Object} { update(id, value), getElement() }
+     */
+    static createScoreBoard(options = {}) {
+        const {
+            items = [],
+            containerId = null
+        } = options;
+        
+        // HTML 생성
+        const scoreBoard = document.createElement('div');
+        scoreBoard.className = 'game-score-board';
+        scoreBoard.innerHTML = items.map(item => `
+            <div class="score-item ${item.wide ? 'score-item-wide' : ''}">
+                <h3>${item.label}</h3>
+                <p id="${item.id}">${item.value}</p>
+            </div>
+        `).join('');
+        
+        // 컨테이너에 추가
+        const container = containerId ? document.getElementById(containerId) : document.body;
+        container.appendChild(scoreBoard);
+        
+        // 업데이트 함수 반환
+        return {
+            update: (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            },
+            getElement: () => scoreBoard,
+            remove: () => scoreBoard.remove()
+        };
+    }
+    
+    /**
+     * 카톡 공유 버튼 생성
+     * @param {Object} options
+     * @param {string} options.gameId - 게임 식별자
+     * @param {string} options.gameName - 게임 이름
+     * @param {Function} options.getText - 공유 텍스트 생성 함수 (score, highScore) => string
+     * @param {string} options.containerId - 버튼을 넣을 컨테이너 ID
+     * @returns {HTMLElement}
+     */
+    static createShareButton(options = {}) {
+        const {
+            gameId,
+            gameName,
+            getText,
+            containerId = null
+        } = options;
+        
+        const button = document.createElement('button');
+        button.className = 'btn share-btn';
+        button.innerHTML = '📱 카톡 공유';
+        button.onclick = () => {
+            const score = GameUtils.getScore(gameId, 'score', 0);
+            const highScore = GameUtils.getScore(gameId, 'highScore', 0);
+            const text = getText ? getText(score, highScore) : 
+                `🎮 ${gameName}\n\n점수: ${score}\n최고점수: ${highScore}\n\nhttps://oringnam.github.io/minigames/`;
+            GameUtils.copyToClipboard(text);
+        };
+        
+        if (containerId) {
+            document.getElementById(containerId).appendChild(button);
+        }
+        
+        return button;
+    }
+}
+
+/**
+ * GameControls - 모바일 조이스틱/버튼 헬퍼
+ * (mobile-controls.js 필요)
+ */
+class GameControls {
+    constructor() {
+        this.joystick = null;
+        this.buttons = [];
+    }
+    
+    /**
+     * 조이스틱 생성
+     * @param {Object} options
+     * @param {Function} options.onMove - (direction) => {} ('up', 'down', 'left', 'right')
+     * @param {Function} options.onEnd - () => {}
+     * @param {string} options.position - 'left' or 'right'
+     */
+    createJoystick(options = {}) {
+        if (typeof VirtualJoystick === 'undefined') {
+            console.error('mobile-controls.js required for GameControls.createJoystick');
+            return null;
+        }
+        
+        const {
+            onMove = null,
+            onEnd = null,
+            position = 'left'
+        } = options;
+        
+        this.joystick = new VirtualJoystick({
+            container: document.body,
+            position: position,
+            radius: 50
+        });
+        
+        if (onMove) {
+            this.joystick.on('move', (data) => onMove(data.direction));
+        }
+        
+        if (onEnd) {
+            this.joystick.on('end', onEnd);
+        }
+        
+        return this.joystick;
+    }
+    
+    /**
+     * 버튼 생성
+     * @param {Object} options
+     * @param {Function} options.onPress - () => {}
+     * @param {string} options.label - 버튼 레이블 (이모지)
+     * @param {string} options.position - 'left' or 'right'
+     */
+    createButton(options = {}) {
+        if (typeof VirtualButton === 'undefined') {
+            console.error('mobile-controls.js required for GameControls.createButton');
+            return null;
+        }
+        
+        const {
+            onPress = null,
+            label = '🔥',
+            position = 'right'
+        } = options;
+        
+        const button = new VirtualButton({
+            container: document.body,
+            position: position,
+            label: label
+        });
+        
+        if (onPress) {
+            button.on('press', onPress);
+        }
+        
+        this.buttons.push(button);
+        return button;
+    }
+    
+    /**
+     * 모든 컨트롤 제거
+     */
+    destroy() {
+        if (this.joystick) {
+            this.joystick.destroy();
+            this.joystick = null;
+        }
+        
+        this.buttons.forEach(btn => btn.destroy());
+        this.buttons = [];
+    }
+}
+
+/**
+ * 공통 스타일 (자동 주입)
  */
 if (typeof document !== 'undefined') {
     const style = document.createElement('style');
     style.textContent = `
+        /* 모달 */
         .game-modal {
             display: none;
             position: fixed;
@@ -268,6 +440,86 @@ if (typeof document !== 'undefined') {
         
         .game-modal-btn {
             width: 100%;
+        }
+        
+        /* 점수판 (메모리 게임 스타일) */
+        .game-score-board {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .score-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 15px;
+            border-radius: 15px;
+            color: white;
+            flex: 1;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .score-item-wide {
+            flex: 1.8;
+        }
+        
+        .score-item h3 {
+            font-size: 0.7em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        
+        .score-item p {
+            font-size: 1.3em;
+            font-weight: bold;
+            white-space: nowrap;
+            margin: 0;
+        }
+        
+        /* 공유 버튼 */
+        .share-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+        }
+        
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .game-score-board {
+                gap: 5px;
+            }
+            
+            .score-item {
+                padding: 8px 10px;
+                min-width: 50px;
+            }
+            
+            .score-item-wide {
+                flex: 2;
+            }
+            
+            .score-item h3 {
+                font-size: 0.65em;
+            }
+            
+            .score-item p {
+                font-size: 1.1em;
+            }
         }
     `;
     document.head.appendChild(style);

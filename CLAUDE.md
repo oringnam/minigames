@@ -72,12 +72,23 @@ screenShake(10, 300);     // 강도 10, 300ms
 ```
 
 ### 2. game-utils.js
-**점수 저장, 모달, 텍스트 복사 등 공통 유틸리티**
+**점수 저장, 모달, UI 컴포넌트, 텍스트 복사 등**
 
 ```javascript
 // LocalStorage 헬퍼
 GameUtils.saveScore('snake', 'highScore', 1000);
 const highScore = GameUtils.getScore('snake', 'highScore', 0);
+
+// 점수판 생성 (메모리 게임 스타일) ⭐ NEW
+const scoreBoard = GameUI.createScoreBoard({
+    items: [
+        { id: 'score', label: '점수', value: 0 },
+        { id: 'highScore', label: '최고', value: 100 },
+        { id: 'lives', label: '목숨', value: '❤️❤️❤️', wide: true }
+    ],
+    containerId: 'scoreBoardContainer'  // 선택사항
+});
+scoreBoard.update('score', 100);
 
 // 모달 생성
 GameUtils.createModal({
@@ -103,6 +114,20 @@ GameUtils.formatTime(125);             // "02:05"
 GameUtils.randomInt(1, 10);            // 1~9
 GameUtils.shuffle([1, 2, 3, 4]);       // 섞인 배열
 GameUtils.randomElement(['a', 'b']);   // 랜덤 요소
+
+// 조이스틱/버튼 헬퍼 ⭐ NEW
+const controls = new GameControls();
+controls.createJoystick({
+    position: 'left',
+    onMove: (direction) => console.log(direction),  // 'up', 'down', 'left', 'right'
+    onEnd: () => console.log('놓음')
+});
+controls.createButton({
+    position: 'right',
+    label: '🔥',
+    onPress: () => console.log('Fire!')
+});
+controls.destroy();  // 정리
 ```
 
 ### 3. mobile-controls.js

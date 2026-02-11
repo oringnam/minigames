@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공통 모듈 사용 예시</title>
+    <script src="game-sounds.js"></script>
+    <script src="game-utils.js"></script>
+    <script src="mobile-controls.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #764ba2;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 공통 모듈 예시</h1>
+        
+        <!-- 점수판이 여기에 추가됨 -->
+        <div id="scoreBoardContainer"></div>
+        
+        <div style="margin: 20px 0;">
+            <button class="btn" onclick="addScore()">점수 +10</button>
+            <button class="btn" onclick="addLife()">목숨 +1</button>
+            <button class="btn" onclick="showModal()">모달 열기</button>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button class="btn" onclick="enableJoystick()">조이스틱 켜기</button>
+            <button class="btn" onclick="disableJoystick()">조이스틱 끄기</button>
+        </div>
+    </div>
+    
+    <script>
+        // ===== 1. 점수판 예시 (메모리 게임 스타일) =====
+        const scoreBoard = GameUI.createScoreBoard({
+            items: [
+                { id: 'score', label: '점수', value: 0 },
+                { id: 'highScore', label: '최고', value: 100 },
+                { id: 'lives', label: '목숨', value: '❤️❤️❤️', wide: true }
+            ],
+            containerId: 'scoreBoardContainer'
+        });
+        
+        // 점수 업데이트
+        let score = 0;
+        let lives = 3;
+        
+        function addScore() {
+            score += 10;
+            scoreBoard.update('score', score);
+            
+            // 사운드 + 진동
+            const sounds = new GameSounds();
+            sounds.play('success');
+            vibrate(50);
+        }
+        
+        function addLife() {
+            lives = Math.min(5, lives + 1);
+            scoreBoard.update('lives', '❤️'.repeat(lives));
+            
+            const sounds = new GameSounds();
+            sounds.play('coin');
+        }
+        
+        // ===== 2. 모달 예시 =====
+        function showModal() {
+            GameUtils.createModal({
+                title: '🎉 게임 클리어!',
+                message: '축하합니다!',
+                stats: [
+                    { label: '최종 점수', value: score },
+                    { label: '최고 점수', value: 100 }
+                ],
+                buttons: [
+                    { 
+                        text: '📱 카톡 공유', 
+                        action: () => {
+                            const text = `🎮 점수: ${score}\nhttps://oringnam.github.io/minigames/`;
+                            GameUtils.copyToClipboard(text);
+                        }
+                    },
+                    { 
+                        text: '다시 하기', 
+                        action: () => {
+                            score = 0;
+                            lives = 3;
+                            scoreBoard.update('score', 0);
+                            scoreBoard.update('lives', '❤️❤️❤️');
+                        }
+                    }
+                ]
+            });
+        }
+        
+        // ===== 3. 조이스틱 예시 =====
+        const controls = new GameControls();
+        
+        function enableJoystick() {
+            controls.createJoystick({
+                position: 'left',
+                onMove: (direction) => {
+                    console.log('조이스틱:', direction);
+                    alert(`방향: ${direction}`);
+                },
+                onEnd: () => {
+                    console.log('조이스틱 놓음');
+                }
+            });
+            
+            controls.createButton({
+                position: 'right',
+                label: '🔥',
+                onPress: () => {
+                    alert('버튼 눌림!');
+                    const sounds = new GameSounds();
+                    sounds.play('powerup');
+                    vibrate(100);
+                }
+            });
+        }
+        
+        function disableJoystick() {
+            controls.destroy();
+        }
+        
+        // ===== 4. 카톡 공유 버튼 예시 =====
+        // (이미 모달 안에 포함되어 있음)
+    </script>
+</body>
+</html>
