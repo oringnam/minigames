@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메모리 게임</title>
+    <link rel="stylesheet" href="../../mobile-layout.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .memory-stats {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: stretch;
+            margin-bottom: 20px;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 15px;
+            border-radius: 15px;
+            flex: 1 1 0;
+            min-width: 0;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+        }
+        
+        .stat-box h3 {
+            font-size: 0.7em;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-box p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto 30px;
+            perspective: 1000px;
+            justify-items: center;
+            align-items: center;
+        }
+        
+        .card {
+            aspect-ratio: 1;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            user-select: none;
+        }
+        
+        .card:hover {
+            transform: scale(1.05);
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card.matched {
+            animation: match 0.6s ease-out;
+            pointer-events: none;
+        }
+        
+        .card .back,
+        .card .front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            backface-visibility: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            font-size: 3em;
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+        
+        .card .back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            font-size: 2em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .card .front {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            transform: rotateY(180deg);
+            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.4);
+        }
+        
+        .card.matched .front {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            animation: pulse 0.8s ease-in-out;
+            box-shadow: 0 0 30px rgba(56, 249, 215, 0.6);
+        }
+        
+        @keyframes match {
+            0%, 100% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.2); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.15); }
+        }
+        
+        .memory-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+        }
+        
+        .win-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(118, 75, 162, 0.95);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .win-message h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+            
+            .memory-stats {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 6px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-box {
+                padding: 8px 10px;
+                min-width: 0;
+                flex: 1 1 0;
+            }
+            
+            .stat-box h3 {
+                font-size: 0.65em;
+            }
+            
+            .stat-box p {
+                font-size: 1.2em;
+            }
+            
+            .memory-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 3px;
+                max-width: min(90vw, 400px);
+                width: 100%;
+                padding: 0;
+                margin: 0 auto 20px;
+                justify-items: center;
+                align-items: center;
+            }
+            
+            .card .back,
+            .card .front {
+                font-size: 2.2em;
+                border-radius: 12px;
+                border-width: 2px;
+            }
+            
+            .card .back {
+                font-size: 1.8em;
+            }
+            
+            .memory-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+                gap: 10px;
+            }
+            
+            .memory-buttons .btn {
+                flex: 1 1 45%;
+                min-width: 120px;
+            }
+        }
+    </style>
+    <script src="../../game-sounds.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 메모리 게임</h1>
+        <div class="memory-stats">
+            <div class="stat-box">
+                <h3>시도</h3>
+                <p id="moves">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>매치</h3>
+                <p id="matches">0 / 8</p>
+            </div>
+            <div class="stat-box">
+                <h3>시간</h3>
+                <p id="time">0:00</p>
+            </div>
+        </div>
+        
+        <div class="memory-board" id="board"></div>
+        
+        <div class="memory-buttons">
+            <button class="btn" onclick="initGame()">새 게임</button>
+            <a href="challenge.html" class="btn">🏆 챌린지</a>
+            <a href="../../index.html" class="btn">← 메인</a>
+        </div>
+    </div>
+    
+    <div class="win-message" id="winMessage">
+        <h2>🎉 축하합니다!</h2>
+        <p id="winText">완료!</p>
+        <button class="btn" onclick="initGame()" style="margin-top: 20px;">다시 시작</button>
+    </div>
+    
+    <script>
+        // 사운드
+        const sounds = new GameSounds();
+        
+        const emojis = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍒', '🍑', '🥝'];
+        let cards = [...emojis, ...emojis];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let gameStartTime = null;
+        let timerInterval = null;
+        let canFlip = true;
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function initGame() {
+            cards = shuffle([...emojis, ...emojis]);
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            gameStartTime = Date.now();
+            canFlip = true;
+            
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('matches').textContent = `0 / ${emojis.length}`;
+            document.getElementById('winMessage').style.display = 'none';
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            // 🎵 게임 시작 사운드
+            sounds.play('click');
+            
+            renderBoard();
+        }
+        
+        function renderBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = index;
+                card.dataset.emoji = emoji;
+                
+                card.innerHTML = `
+                    <div class="back">❓</div>
+                    <div class="front">${emoji}</div>
+                `;
+                
+                card.addEventListener('click', () => flipCard(card));
+                board.appendChild(card);
+            });
+        }
+        
+        function flipCard(card) {
+            if (!canFlip) return;
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if (flippedCards.length >= 2) return;
+            
+            card.classList.add('flipped');
+            flippedCards.push(card);
+            
+            // 🎵 카드 뒤집기 사운드 + 진동
+            sounds.play('flip');
+            vibrate(20);
+            
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                checkMatch();
+            }
+        }
+        
+        function checkMatch() {
+            canFlip = false;
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.emoji === card2.dataset.emoji) {
+                // 🎵 매치 성공!
+                sounds.play('match');
+                vibrate([50, 30, 50]);
+                setTimeout(() => {
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    
+                    matchedPairs++;
+                    document.getElementById('matches').textContent = `${matchedPairs} / ${emojis.length}`;
+                    
+                    flippedCards = [];
+                    canFlip = true;
+                    
+                    if (matchedPairs === emojis.length) {
+                        gameWin();
+                    }
+                }, 500);
+            } else {
+                // 🎵 매치 실패
+                sounds.play('wrong');
+                vibrate(100);
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                    canFlip = true;
+                }, 1000);
+            }
+        }
+        
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function gameWin() {
+            clearInterval(timerInterval);
+            
+            // 🎵 승리!
+            sounds.play('victory');
+            vibrate([100, 50, 100, 50, 200]);
+            const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            document.getElementById('winText').textContent = 
+                `${moves}번 시도 | ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('winMessage').style.display = 'block';
+            
+            // 복사 버튼 추가
+            setTimeout(() => {
+                if (confirm('🎉 축하합니다!\n\n📋 점수를 복사하시겠습니까?')) {
+                    shareScore(moves, elapsed);
+                }
+            }, 500);
+        }
+        
+        function shareScore(moves, elapsed) {
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            const text = `🧠 메모리 게임 완료!\n\n🎯 시도: ${moves}번\n⏱️ 시간: ${timeStr}\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('📋 클립보드에 복사되었습니다!');
+                }).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('📋 클립보드에 복사되었습니다!');
+            } catch (err) {
+                alert('복사 실패:\n\n' + text);
+            }
+            document.body.removeChild(textarea);
+        }
+        
+        // 게임 시작
+        initGame();
+    </script>
+</body>
+</html>

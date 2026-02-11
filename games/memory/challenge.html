@@ -250,8 +250,7 @@
         
         <div class="buttons">
             <button class="btn" id="startBtn" onclick="startGame()">게임 시작</button>
-            <a href="index.html" class="btn">← 기본 모드</a>
-            <a href="../../index.html" class="btn">메인</a>
+            <a href="../../index.html" class="btn">← 메인으로</a>
         </div>
     </div>
     
@@ -272,11 +271,11 @@
         document.getElementById('bestStage').textContent = bestStage;
         
         const stageConfig = {
-            1: { size: 3, pairs: 4 },    // 3x3, 8카드 + 1빈칸
-            2: { size: 4, pairs: 8 },    // 4x4, 16카드
-            3: { size: 5, pairs: 12 },   // 5x5, 24카드 + 1빈칸
-            4: { size: 5, pairs: 12, shuffle: 4 },  // 5x5, 카드 4개 섞기
-            5: { size: 5, pairs: 12, shuffle: 8 }   // 5x5, 카드 8개 섞기
+            1: { cols: 4, rows: 3, pairs: 6 },    // 4x3, 12카드 (6쌍)
+            2: { cols: 4, rows: 4, pairs: 8 },    // 4x4, 16카드 (8쌍)
+            3: { cols: 5, rows: 5, pairs: 12 },   // 5x5, 24카드 (12쌍) + 1빈칸
+            4: { cols: 5, rows: 5, pairs: 12, shuffle: 4 },  // 5x5, 카드 4개 섞기
+            5: { cols: 5, rows: 5, pairs: 12, shuffle: 8 }   // 5x5, 카드 8개 섞기
         };
         
         function shuffle(array) {
@@ -296,7 +295,8 @@
         
         function startStage() {
             const config = stageConfig[stage];
-            const size = config.size;
+            const cols = config.cols;
+            const rows = config.rows;
             const pairCount = config.pairs;
             
             // 카드 생성
@@ -304,7 +304,7 @@
             cards = shuffle([...selectedEmojis, ...selectedEmojis]);
             
             // 빈 칸 추가 (홀수개일 때)
-            const totalCells = size * size;
+            const totalCells = cols * rows;
             while (cards.length < totalCells) {
                 cards.push(null);
             }
@@ -312,16 +312,17 @@
             matchedPairs = 0;
             flippedCards = [];
             
-            renderBoard(size);
+            renderBoard(cols, rows);
             
             // 2초간 카드 공개
             showAllCards();
         }
         
-        function renderBoard(size) {
+        function renderBoard(cols, rows) {
             const board = document.getElementById('board');
             board.innerHTML = '';
-            board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
             
             cards.forEach((emoji, index) => {
                 if (emoji === null) {
