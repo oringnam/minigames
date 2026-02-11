@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블랙잭</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #134E5E 0%, #71B280 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: #0a5f38;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 10px solid #8b4513;
+        }
+        
+        h1 {
+            color: #ffd700;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .chips {
+            color: #ffd700;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        
+        .hands {
+            display: flex;
+            justify-content: space-around;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .hand {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 250px;
+        }
+        
+        .hand h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .cards {
+            display: flex;
+            gap: -30px;
+            justify-content: center;
+            margin-bottom: 15px;
+            min-height: 120px;
+        }
+        
+        .card {
+            width: 80px;
+            height: 112px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            margin: 0 -15px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card.red {
+            color: #e74c3c;
+        }
+        
+        .card.black {
+            color: #2c3e50;
+        }
+        
+        .card.hidden {
+            background: linear-gradient(45deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .score {
+            color: #ffd700;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn:hover:not(:disabled) {
+            background: #2ecc71;
+            transform: translateY(-3px);
+        }
+        
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .btn.stand {
+            background: #e67e22;
+        }
+        
+        .btn.stand:hover:not(:disabled) {
+            background: #f39c12;
+        }
+        
+        .message {
+            color: #ffd700;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            padding: 12px 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>♠️ 블랙잭 ♥️</h1>
+        
+        <div class="chips">칩: <span id="chips">1000</span></div>
+        
+        <div class="hands">
+            <div class="hand">
+                <h3>딜러</h3>
+                <div class="cards" id="dealerCards"></div>
+                <div class="score" id="dealerScore">?</div>
+            </div>
+            
+            <div class="hand">
+                <h3>플레이어</h3>
+                <div class="cards" id="playerCards"></div>
+                <div class="score" id="playerScore">0</div>
+            </div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="actions">
+            <button class="btn" id="hitBtn" onclick="hit()" disabled>힛</button>
+            <button class="btn stand" id="standBtn" onclick="stand()" disabled>스탠드</button>
+            <button class="btn" id="dealBtn" onclick="deal()">새 게임 (배팅: 10)</button>
+        </div>
+        
+        <a href="../../index.html" class="back-btn">← 메인으로</a>
+    </div>
+    
+    <script>
+        const suits = ['♠️', '♥️', '♣️', '♦️'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        
+        let deck = [];
+        let playerHand = [];
+        let dealerHand = [];
+        let chips = 1000;
+        let bet = 10;
+        let gameActive = false;
+        let dealerHidden = true;
+        
+        function createDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    const color = (suit === '♥️' || suit === '♦️') ? 'red' : 'black';
+                    deck.push({suit, value, color});
+                }
+            }
+            shuffleDeck();
+        }
+        
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+        
+        function drawCard() {
+            return deck.pop();
+        }
+        
+        function getHandValue(hand) {
+            let value = 0;
+            let aces = 0;
+            
+            for (let card of hand) {
+                if (card.value === 'A') {
+                    aces++;
+                    value += 11;
+                } else if (['J', 'Q', 'K'].includes(card.value)) {
+                    value += 10;
+                } else {
+                    value += parseInt(card.value);
+                }
+            }
+            
+            while (value > 21 && aces > 0) {
+                value -= 10;
+                aces--;
+            }
+            
+            return value;
+        }
+        
+        function displayHand(hand, elementId, hideFirst = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            
+            hand.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                if (hideFirst && index === 0) {
+                    cardDiv.className = 'card hidden';
+                    cardDiv.textContent = '?';
+                } else {
+                    cardDiv.className = `card ${card.color}`;
+                    cardDiv.innerHTML = `${card.value}<br>${card.suit}`;
+                }
+                element.appendChild(cardDiv);
+            });
+        }
+        
+        function updateScores() {
+            const playerValue = getHandValue(playerHand);
+            document.getElementById('playerScore').textContent = playerValue;
+            
+            if (dealerHidden) {
+                document.getElementById('dealerScore').textContent = '?';
+            } else {
+                const dealerValue = getHandValue(dealerHand);
+                document.getElementById('dealerScore').textContent = dealerValue;
+            }
+        }
+        
+        function deal() {
+            if (chips < bet) {
+                document.getElementById('message').textContent = '칩이 부족합니다!';
+                return;
+            }
+            
+            chips -= bet;
+            document.getElementById('chips').textContent = chips;
+            
+            createDeck();
+            playerHand = [drawCard(), drawCard()];
+            dealerHand = [drawCard(), drawCard()];
+            dealerHidden = true;
+            gameActive = true;
+            
+            document.getElementById('message').textContent = '';
+            document.getElementById('hitBtn').disabled = false;
+            document.getElementById('standBtn').disabled = false;
+            document.getElementById('dealBtn').disabled = true;
+            
+            displayHand(playerHand, 'playerCards');
+            displayHand(dealerHand, 'dealerCards', true);
+            updateScores();
+            
+            // 블랙잭 체크
+            if (getHandValue(playerHand) === 21) {
+                stand();
+            }
+        }
+        
+        function hit() {
+            playerHand.push(drawCard());
+            displayHand(playerHand, 'playerCards');
+            updateScores();
+            
+            const playerValue = getHandValue(playerHand);
+            if (playerValue > 21) {
+                endGame('버스트! 패배!');
+            } else if (playerValue === 21) {
+                stand();
+            }
+        }
+        
+        function stand() {
+            dealerHidden = false;
+            displayHand(dealerHand, 'dealerCards');
+            updateScores();
+            
+            document.getElementById('hitBtn').disabled = true;
+            document.getElementById('standBtn').disabled = true;
+            
+            dealerPlay();
+        }
+        
+        function dealerPlay() {
+            let dealerValue = getHandValue(dealerHand);
+            
+            const interval = setInterval(() => {
+                if (dealerValue < 17) {
+                    dealerHand.push(drawCard());
+                    displayHand(dealerHand, 'dealerCards');
+                    updateScores();
+                    dealerValue = getHandValue(dealerHand);
+                } else {
+                    clearInterval(interval);
+                    checkWinner();
+                }
+            }, 1000);
+        }
+        
+        function checkWinner() {
+            const playerValue = getHandValue(playerHand);
+            const dealerValue = getHandValue(dealerHand);
+            
+            if (dealerValue > 21) {
+                endGame('딜러 버스트! 승리!', bet * 2);
+            } else if (playerValue > dealerValue) {
+                endGame('승리!', bet * 2);
+            } else if (playerValue < dealerValue) {
+                endGame('패배!');
+            } else {
+                endGame('무승부!', bet);
+            }
+        }
+        
+        function endGame(message, winAmount = 0) {
+            gameActive = false;
+            chips += winAmount;
+            document.getElementById('chips').textContent = chips;
+            document.getElementById('message').textContent = message;
+            document.getElementById('hitBtn').disabled = true;
+            document.getElementById('standBtn').disabled = true;
+            document.getElementById('dealBtn').disabled = false;
+            
+            if (chips <= 0) {
+                document.getElementById('message').textContent = '파산! 게임 오버!';
+                chips = 1000;
+                document.getElementById('chips').textContent = chips;
+            }
+        }
+    </script>
+</body>
+</html>
