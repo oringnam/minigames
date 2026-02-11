@@ -46,6 +46,13 @@ minigames/
 - 공통 유틸리티 (shuffle, randomElement 등)
 - 최고점수 자동 갱신
 
+**Glassmorphism 디자인 시스템 적용!** (2026-02-12)
+- 전체 사이트 반투명 유리 효과
+- 흰색 텍스트 + 그림자로 통일
+- backdrop-filter: blur(20px)
+- rgba(255, 255, 255, 0.15) 배경
+- 모든 페이지 시각적 일관성 확보
+
 **메인 화면도 공통 모듈화 완료!**
 - 검색/필터링 로직 → GameUI/GameUtils
 - 약 45줄 코드 감소
@@ -439,6 +446,53 @@ git push origin main
 **localStorage 에러**
 - 시크릿 모드에서는 작동 안 함
 - try-catch로 감싸기
+
+---
+
+## 🎨 디자인 시스템 (Glassmorphism)
+
+### 색상 팔레트
+- **배경 그라디언트**: 각 게임마다 다름
+  - Snake: `#1e3c72 → #2a5298` (파란색)
+  - Memory: `#667eea → #764ba2` (보라색)
+  - Match-3: `#f093fb → #f5576c` (핑크)
+  - Simon Says: `#141E30 → #243B55` (검정)
+  - 메인/통계: `#667eea → #764ba2` (보라색)
+
+### Glassmorphism 스타일
+```css
+/* 기본 컨테이너 */
+background: rgba(255, 255, 255, 0.15);
+backdrop-filter: blur(20px);
+border: 2px solid rgba(255, 255, 255, 0.3);
+box-shadow: 
+    0 20px 60px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+
+/* 버튼/카드 */
+background: rgba(255, 255, 255, 0.2);
+backdrop-filter: blur(10px);
+border: 2px solid rgba(255, 255, 255, 0.3);
+
+/* 호버 효과 */
+background: rgba(255, 255, 255, 0.3);
+transform: translateY(-2px);
+```
+
+### 타이포그래피
+- **제목**: 흰색 + `text-shadow: 0 2px 10px rgba(0,0,0,0.3)`
+- **본문**: `rgba(255, 255, 255, 0.8~1.0)`
+- **굵기**: 제목 900, 버튼 600, 본문 400
+
+### 레이아웃
+- **모바일 우선**: padding 10-20px
+- **여백**: gap 10-20px
+- **둥근 모서리**: 20-25px (컨테이너), 12-15px (작은 요소)
+
+### 애니메이션
+- **전환**: `transition: all 0.3s`
+- **호버**: `transform: translateY(-2px)`, `scale(1.05~1.1)`
+- **게임 요소**: 0.2s~0.6s (빠르게)
 
 ---
 
