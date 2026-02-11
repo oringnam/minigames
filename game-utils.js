@@ -773,6 +773,10 @@ if (typeof document !== 'undefined') {
         
         .game-modal-btn {
             width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            border: none !important;
+            backdrop-filter: none !important;
         }
         
         /* 점수판 (메모리 게임 스타일) */
