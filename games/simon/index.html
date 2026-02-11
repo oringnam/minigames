@@ -252,8 +252,13 @@
             disableButtons();
             messageEl.textContent = '순서를 기억하세요...';
             
+            // 레벨에 따라 속도 증가 (10레벨마다 50ms 감소)
+            const baseDelay = 600;
+            const speedBonus = Math.floor(level / 10) * 50;
+            const delay = Math.max(300, baseDelay - speedBonus); // 최소 300ms
+            
             for (let i = 0; i < sequence.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 600));
+                await new Promise(resolve => setTimeout(resolve, delay));
                 lightButton(sequence[i]);
             }
             
@@ -354,6 +359,11 @@
             
             scoreBoard.update('level', 0);
             messageEl.textContent = '게임 시작!';
+            
+            // 플레이 추적
+            GameUtils.trackPlay('simon');
+            GameUtils.startTimer('simon');
+            
             sounds.play('click');
             
             setTimeout(() => {
