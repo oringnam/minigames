@@ -376,11 +376,44 @@
         }
         
         function checkGameEnd() {
-            if (score >= target) {
-                alert(`🎉 축하합니다! 목표 달성!\n점수: ${score}`);
-            } else {
-                alert(`게임 오버!\n점수: ${score} / 목표: ${target}`);
+            const won = score >= target;
+            const message = won 
+                ? `🎉 축하합니다! 목표 달성!\n\n점수: ${score}\n이동: ${30 - moves}번 사용`
+                : `게임 오버!\n\n점수: ${score} / 목표: ${target}`;
+            
+            if (confirm(message + '\n\n📋 점수를 복사하시겠습니까?')) {
+                shareScore(won);
             }
+        }
+        
+        function shareScore(won) {
+            const emoji = won ? '🎉' : '💎';
+            const status = won ? '목표 달성!' : '도전!';
+            const text = `${emoji} 매치3 게임 ${status}\n\n🎯 점수: ${score}점\n🎲 목표: ${target}점\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('📋 클립보드에 복사되었습니다!');
+                }).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('📋 클립보드에 복사되었습니다!');
+            } catch (err) {
+                alert('복사 실패:\n\n' + text);
+            }
+            document.body.removeChild(textarea);
         }
         
         function initGame() {

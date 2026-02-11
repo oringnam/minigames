@@ -336,6 +336,45 @@
             document.getElementById('winText').textContent = 
                 `${moves}번 시도 | ${minutes}:${seconds.toString().padStart(2, '0')}`;
             document.getElementById('winMessage').style.display = 'block';
+            
+            // 복사 버튼 추가
+            setTimeout(() => {
+                if (confirm('🎉 축하합니다!\n\n📋 점수를 복사하시겠습니까?')) {
+                    shareScore(moves, elapsed);
+                }
+            }, 500);
+        }
+        
+        function shareScore(moves, elapsed) {
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            const text = `🧠 메모리 게임 완료!\n\n🎯 시도: ${moves}번\n⏱️ 시간: ${timeStr}\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('📋 클립보드에 복사되었습니다!');
+                }).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('📋 클립보드에 복사되었습니다!');
+            } catch (err) {
+                alert('복사 실패:\n\n' + text);
+            }
+            document.body.removeChild(textarea);
         }
         
         // 게임 시작

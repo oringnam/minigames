@@ -132,7 +132,8 @@
             border-radius: 30px;
             text-align: center;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            min-width: 300px;
+            min-width: 320px;
+            max-width: 90vw;
         }
         
         .game-over h2 {
@@ -212,10 +213,11 @@
     <div class="game-over" id="gameOver">
         <div class="game-over-content">
             <h2>🎮</h2>
-            <h2>게임 오버!</h2>
+            <h2 style="white-space: nowrap;">게임 오버!</h2>
             <p>최종 점수</p>
             <p style="font-size: 2.5em; font-weight: bold; margin: 10px 0;"><span id="finalScore">0</span></p>
-            <button onclick="restartGame()">다시 시작 🔄</button>
+            <button onclick="shareScore()" style="margin: 10px 5px; background: rgba(255,255,255,0.2); border: 2px solid white;">📋 공유하기</button>
+            <button onclick="restartGame()" style="margin: 10px 5px;">다시 시작 🔄</button>
         </div>
     </div>
     
@@ -417,6 +419,38 @@
             shakeScreen(canvas, 8, 300);
             document.getElementById('finalScore').textContent = score;
             document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        function shareScore() {
+            const text = `🐍 스네이크 게임\n\n🎯 점수: ${score}점\n🏆 최고점수: ${highScore}점\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('📋 클립보드에 복사되었습니다!\n카톡에 붙여넣기 하세요!');
+                    vibrate(50);
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('📋 클립보드에 복사되었습니다!\n카톡에 붙여넣기 하세요!');
+                vibrate(50);
+            } catch (err) {
+                alert('복사 실패. 수동으로 복사해주세요:\n\n' + text);
+            }
+            document.body.removeChild(textarea);
         }
         
         function restartGame() {
