@@ -14,7 +14,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -35,7 +35,7 @@
         }
         
         h1 {
-            color: #6c5ce7;
+            color: #764ba2;
             margin-bottom: 20px;
             font-size: 2.5em;
             text-align: center;
@@ -55,12 +55,12 @@
         }
         
         .stat-box {
-            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 10px 15px;
             border-radius: 15px;
             flex: 1 1 0;
             min-width: 0;
-            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
         }
         
         .stat-box h3 {
@@ -80,7 +80,7 @@
         .memory-board {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            gap: 4px;
             max-width: 500px;
             width: 100%;
             margin: 0 auto 30px;
@@ -127,7 +127,7 @@
         }
         
         .card .back {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             font-weight: bold;
             font-size: 2em;
@@ -141,9 +141,9 @@
         }
         
         .card.matched .front {
-            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
             animation: pulse 0.8s ease-in-out;
-            box-shadow: 0 0 30px rgba(253, 203, 110, 0.6);
+            box-shadow: 0 0 30px rgba(56, 249, 215, 0.6);
         }
         
         @keyframes match {
@@ -156,7 +156,7 @@
             50% { transform: rotateY(180deg) scale(1.15); }
         }
         
-        .btn-group {
+        .memory-buttons {
             display: flex;
             flex-direction: row;
             gap: 15px;
@@ -168,7 +168,7 @@
         
         .btn {
             padding: 12px 30px;
-            background: #6c5ce7;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 25px;
@@ -176,11 +176,13 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
         }
         
         .btn:hover {
-            background: #a29bfe;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
         }
         
         .win-message {
@@ -189,7 +191,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(108, 92, 231, 0.95);
+            background: rgba(118, 75, 162, 0.95);
             color: white;
             padding: 40px;
             border-radius: 20px;
@@ -239,7 +241,7 @@
             
             .memory-board {
                 grid-template-columns: repeat(4, 1fr);
-                gap: 5px;
+                gap: 3px;
                 max-width: min(90vw, 400px);
                 width: 100%;
                 padding: 0;
@@ -259,7 +261,7 @@
                 font-size: 1.8em;
             }
             
-            .btn-group {
+            .memory-buttons {
                 flex-direction: row;
                 flex-wrap: wrap;
                 width: 100%;
@@ -268,7 +270,7 @@
                 gap: 10px;
             }
             
-            .btn {
+            .memory-buttons .btn {
                 flex: 1 1 45%;
                 min-width: 120px;
             }
@@ -296,7 +298,7 @@
         
         <div class="memory-board" id="board"></div>
         
-        <div class="btn-group">
+        <div class="memory-buttons">
             <button class="btn" onclick="initGame()">새 게임</button>
             <a href="../../index.html" class="btn">← 메인으로</a>
         </div>
