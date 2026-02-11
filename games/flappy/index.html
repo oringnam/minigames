@@ -122,6 +122,7 @@
         }
     </style>
     <script src="../../mobile-controls.js"></script>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
@@ -132,7 +133,7 @@
         </div>
         <canvas id="gameCanvas" width="400" height="600"></canvas>
         <div class="controls">
-            클릭, 스페이스바 또는 화살표 위로 날아오르기
+            클릭, 스페이스바 또는 화면 터치로 날아오르기
         </div>
         <a href="../../index.html" class="back-btn">← 메인으로</a>
     </div>
@@ -160,14 +161,18 @@
         }
         const ctx = canvas.getContext('2d');
         
+        // 사운드 초기화
+        const sounds = new GameSounds();
+        const particles = [];
+        
         let bird = {
             x: 50,
             y: canvas.height / 2,
             width: 34,
             height: 24,
-            gravity: 0.5, // 중력 낮춤 (0.6 -> 0.5)
+            gravity: 0.5,
             velocity: 0,
-            jump: -9 // 점프력 낮춤 (-10 -> -9)
+            jump: -9
         };
         
         let pipes = [];
@@ -227,6 +232,18 @@
             });
         }
         
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw(ctx);
+                
+                if (p.isDead()) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
         function update() {
             if (!gameRunning) return;
             
@@ -255,9 +272,9 @@
                 return;
             }
             
-            // 파이프 이동 및 충돌 검사 (속도 낮춤)
+            // 파이프 이동 및 충돌 검사
             pipes.forEach((pipe, index) => {
-                pipe.x -= 2.5; // 속도 낮춤 (3 -> 2.5)
+                pipe.x -= 2.5;
                 
                 // 파이프 통과 점수
                 if (!pipe.passed && pipe.x + pipe.width < bird.x) {
@@ -265,10 +282,24 @@
                     score++;
                     document.getElementById('score').textContent = score;
                     
+                    // 🎵 사운드 + 파티클 + 진동
+                    sounds.play('coin');
+                    vibrate(50);
+                    
+                    // 파티클 효과
+                    for (let i = 0; i < 10; i++) {
+                        particles.push(new ParticleEffect(
+                            pipe.x + pipe.width / 2,
+                            canvas.height / 2,
+                            '#FFD700'
+                        ));
+                    }
+                    
                     if (score > highScore) {
                         highScore = score;
                         localStorage.setItem('flappyHighScore', highScore);
                         document.getElementById('highScore').textContent = highScore;
+                        sounds.play('success'); // 신기록!
                     }
                 }
                 
@@ -289,7 +320,7 @@
         }
         
         function draw() {
-            // 배경 (그라디언트는 CSS에서)
+            // 배경
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // 구름
@@ -316,12 +347,14 @@
             
             drawPipes();
             drawBird();
+            drawParticles();
         }
         
         function startGame() {
             bird.y = canvas.height / 2;
             bird.velocity = 0;
             pipes = [];
+            particles.length = 0;
             frameCount = 0;
             score = 0;
             gameRunning = true;
@@ -329,21 +362,36 @@
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameOver').style.display = 'none';
             
+            sounds.play('click');
+            
             if (gameLoop) clearInterval(gameLoop);
             gameLoop = setInterval(update, 1000/60);
         }
         
         function endGame() {
+            if (!gameRunning) return;
+            
             gameRunning = false;
             clearInterval(gameLoop);
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOver').style.display = 'block';
             
-            // 복사 버튼
+            // 🎵 사운드 + 진동 + 스크린 셰이크
+            sounds.play('gameover');
+            vibrate([100, 50, 100]);
+            screenShake(canvas, 10);
+            
+            // 폭발 파티클
+            for (let i = 0; i < 30; i++) {
+                particles.push(new ParticleEffect(
+                    bird.x + bird.width / 2,
+                    bird.y + bird.height / 2,
+                    ['#FF6B6B', '#FFA500', '#FFD700'][Math.floor(Math.random() * 3)]
+                ));
+            }
+            
+            document.getElementById('finalScore').textContent = score;
+            
             setTimeout(() => {
-                if (confirm(`게임 오버!\n\n🎯 점수: ${score}\n🏆 최고: ${highScore}\n\n📋 점수를 복사하시겠습니까?`)) {
-                    shareScore();
-                }
+                document.getElementById('gameOver').style.display = 'block';
             }, 500);
         }
         
@@ -378,6 +426,8 @@
         function jump() {
             if (gameRunning) {
                 bird.velocity = bird.jump;
+                sounds.play('pop'); // 🎵 점프 사운드
+                vibrate(30); // 📳 진동
             }
         }
         
