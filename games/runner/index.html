@@ -121,6 +121,7 @@
             margin-top: 20px;
         }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -372,6 +373,19 @@
         
         // 초기 화면
         draw();
+        
+        // Mobile controls
+        if (isMobile()) {
+            new VirtualButton({
+                label: '⬆️',
+                position: 'bottom-center',
+                size: 80,
+                color: 'rgba(255, 107, 107, 0.7)',
+                onPress: () => {
+                    jump();
+                }
+            });
+        }
     </script>
 </body>
 </html>

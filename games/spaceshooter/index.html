@@ -127,6 +127,7 @@
             margin-top: 20px;
         }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -409,6 +410,38 @@
         
         // 초기 화면
         draw();
+        
+        // Mobile controls
+        if (isMobile()) {
+            // Joystick for movement
+            const joystick = new VirtualJoystick(null, {
+                position: 'bottom-left',
+                onChange: (direction) => {
+                    const speed = 8;
+                    player.x += direction.x * speed;
+                    player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+                }
+            });
+            
+            // Fire button
+            const fireBtn = new VirtualButton({
+                label: '🔥',
+                position: 'bottom-right',
+                color: 'rgba(255, 100, 100, 0.7)',
+                onPress: () => {
+                    shoot();
+                }
+            });
+            
+            // Auto-fire mode (hold to continuous fire)
+            let autoFireInterval;
+            fireBtn.button.addEventListener('touchstart', () => {
+                autoFireInterval = setInterval(() => shoot(), 150);
+            });
+            fireBtn.button.addEventListener('touchend', () => {
+                clearInterval(autoFireInterval);
+            });
+        }
     </script>
 </body>
 </html>

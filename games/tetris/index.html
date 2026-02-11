@@ -132,6 +132,7 @@
             margin-top: 20px;
         }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -419,6 +420,68 @@
         
         // 게임 시작
         restartGame();
+        
+        // Mobile controls
+        if (isMobile()) {
+            // Left button
+            new VirtualButton({
+                label: '←',
+                position: 'bottom-left',
+                color: 'rgba(52, 73, 94, 0.7)',
+                onPress: () => {
+                    if (currentPiece && !collide(currentPiece, -1, 0)) {
+                        currentPiece.x--;
+                    }
+                }
+            });
+            
+            // Right button
+            new VirtualButton({
+                label: '→',
+                position: 'bottom-left',
+                size: 70,
+                color: 'rgba(52, 73, 94, 0.7)',
+                onPress: () => {
+                    if (currentPiece && !collide(currentPiece, 1, 0)) {
+                        currentPiece.x++;
+                    }
+                }
+            });
+            
+            // Move right button to the right of left button
+            const buttons = document.querySelectorAll('div[style*="bottom-left"]');
+            if (buttons.length >= 2) {
+                buttons[1].style.left = '120px';
+            }
+            
+            // Rotate button
+            new VirtualButton({
+                label: '↻',
+                position: 'bottom-right',
+                color: 'rgba(231, 76, 60, 0.7)',
+                onPress: () => {
+                    rotate();
+                }
+            });
+            
+            // Drop button
+            new VirtualButton({
+                label: '↓',
+                position: 'bottom-right',
+                size: 70,
+                color: 'rgba(46, 204, 113, 0.7)',
+                onPress: () => {
+                    drop();
+                }
+            });
+            
+            // Move drop button to the left of rotate button
+            const rightButtons = Array.from(document.querySelectorAll('div[style*="bottom-right"]'));
+            const dropBtn = rightButtons[rightButtons.length - 1];
+            if (dropBtn) {
+                dropBtn.style.right = '120px';
+            }
+        }
     </script>
 </body>
 </html>

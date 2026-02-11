@@ -118,7 +118,23 @@
         .game-over button:hover {
             background: #f0f0f0;
         }
+        
+        /* Mobile message */
+        .mobile-hint {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            z-index: 999;
+            display: none;
+        }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -279,6 +295,42 @@
         // 게임 시작
         generateFood();
         gameLoop = setInterval(drawGame, 100);
+        
+        // Mobile controls
+        if (isMobile()) {
+            const joystick = new VirtualJoystick(null, {
+                position: 'bottom-left',
+                onChange: (direction) => {
+                    const threshold = 0.5;
+                    
+                    if (Math.abs(direction.x) > Math.abs(direction.y)) {
+                        if (direction.x > threshold && velocityX !== -1) {
+                            velocityX = 1;
+                            velocityY = 0;
+                        } else if (direction.x < -threshold && velocityX !== 1) {
+                            velocityX = -1;
+                            velocityY = 0;
+                        }
+                    } else {
+                        if (direction.y > threshold && velocityY !== -1) {
+                            velocityX = 0;
+                            velocityY = 1;
+                        } else if (direction.y < -threshold && velocityY !== 1) {
+                            velocityX = 0;
+                            velocityY = -1;
+                        }
+                    }
+                }
+            });
+            
+            // Show mobile hint
+            const hint = document.createElement('div');
+            hint.className = 'mobile-hint';
+            hint.textContent = '조이스틱으로 이동';
+            hint.style.display = 'block';
+            document.body.appendChild(hint);
+            setTimeout(() => hint.style.display = 'none', 3000);
+        }
     </script>
 </body>
 </html>

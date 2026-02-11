@@ -97,6 +97,7 @@
             background: #3498db;
         }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -400,6 +401,48 @@
         });
         
         loadLevel(0);
+        
+        // Mobile controls
+        if (isMobile()) {
+            let lastMove = 0;
+            
+            const joystick = new VirtualJoystick(null, {
+                position: 'bottom-left',
+                onChange: (direction) => {
+                    const now = Date.now();
+                    if (now - lastMove < 200) return; // Debounce
+                    
+                    const threshold = 0.7;
+                    
+                    if (Math.abs(direction.x) > Math.abs(direction.y)) {
+                        if (direction.x > threshold) {
+                            move(1, 0);
+                            lastMove = now;
+                        } else if (direction.x < -threshold) {
+                            move(-1, 0);
+                            lastMove = now;
+                        }
+                    } else {
+                        if (direction.y > threshold) {
+                            move(0, 1);
+                            lastMove = now;
+                        } else if (direction.y < -threshold) {
+                            move(0, -1);
+                            lastMove = now;
+                        }
+                    }
+                }
+            });
+            
+            // Undo button
+            new VirtualButton({
+                label: '↶',
+                position: 'bottom-right',
+                onPress: () => {
+                    undo();
+                }
+            });
+        }
     </script>
 </body>
 </html>

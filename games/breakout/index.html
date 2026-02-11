@@ -114,6 +114,7 @@
             margin-top: 20px;
         }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -381,6 +382,26 @@
         
         startGame();
         draw();
+        
+        // Mobile controls
+        if (isMobile()) {
+            const joystick = new VirtualJoystick(null, {
+                position: 'bottom-center',
+                onChange: (direction) => {
+                    paddle.x += direction.x * paddle.speed;
+                    paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, paddle.x));
+                }
+            });
+            
+            // Launch button
+            new VirtualButton({
+                label: '🚀',
+                position: 'bottom-right',
+                onPress: () => {
+                    launchBall();
+                }
+            });
+        }
     </script>
 </body>
 </html>

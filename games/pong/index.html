@@ -123,6 +123,7 @@
             cursor: pointer;
         }
     </style>
+    <script src="../../mobile-controls.js"></script>
 </head>
 <body>
     <div class="container">
@@ -386,6 +387,17 @@
         
         // 게임 시작
         gameLoop();
+        
+        // Mobile controls
+        if (isMobile()) {
+            const joystick = new VirtualJoystick(null, {
+                position: 'bottom-left',
+                onChange: (direction) => {
+                    player.y += direction.y * 10;
+                    player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+                }
+            });
+        }
     </script>
 </body>
 </html>
