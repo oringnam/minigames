@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>미로 탈출</title>
+    <link rel="stylesheet" href="../../mobile-layout.css">
     <style>
         * {
             margin: 0;
@@ -152,6 +153,13 @@
     
     <script>
         const canvas = document.getElementById('mazeCanvas');
+        
+        // 모바일 화면 크기 조정
+        if (window.innerWidth < 768) {
+            const maxWidth = Math.min(window.innerWidth - 40, 400);
+            canvas.width = maxWidth;
+            canvas.height = maxWidth * 1.2;
+        }
         const ctx = canvas.getContext('2d');
         
         const MAZE_SIZE = 21; // 홀수여야 함

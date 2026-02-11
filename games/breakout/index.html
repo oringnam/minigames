@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>브레이크아웃</title>
+    <link rel="stylesheet" href="../../mobile-layout.css">
     <style>
         * {
             margin: 0;
@@ -140,6 +141,13 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        
+        // 모바일 화면 크기 조정
+        if (window.innerWidth < 768) {
+            const maxWidth = Math.min(window.innerWidth - 40, 480);
+            canvas.width = maxWidth;
+            canvas.height = maxWidth * 1.25; // 4:5 비율
+        }
         
         const paddle = {
             x: canvas.width / 2 - 50,

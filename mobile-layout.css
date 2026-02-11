@@ -1,0 +1,197 @@
+/* Mobile Layout Optimization */
+
+/* 모바일 감지 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px !important;
+    }
+    
+    .container {
+        padding: 15px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    h1 {
+        font-size: 1.8em !important;
+        margin-bottom: 15px !important;
+    }
+    
+    /* 게임 정보 - 세로 배치 */
+    .game-info {
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .info-box {
+        width: 100% !important;
+        padding: 10px 15px !important;
+    }
+    
+    /* 게임 영역 - 세로 배치 */
+    .game-area {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    
+    /* 캔버스 - 화면에 맞게 */
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+        width: 100% !important;
+    }
+    
+    /* 사이드 패널 - 가로 배치로 변경 */
+    .side-panel {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        justify-content: center !important;
+    }
+    
+    .side-panel .info-box {
+        flex: 1 1 45% !important;
+        min-width: 120px !important;
+    }
+    
+    .side-panel #nextCanvas {
+        width: 100% !important;
+        max-width: 150px !important;
+    }
+    
+    /* 버튼 */
+    .btn-group {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .btn, .back-btn {
+        width: 100% !important;
+        max-width: 300px !important;
+    }
+    
+    /* 게임 보드들 */
+    .board {
+        max-width: 100% !important;
+        transform: scale(0.9) !important;
+        transform-origin: top center !important;
+    }
+    
+    /* 그리드 게임들 (2048, Match3 등) */
+    .grid {
+        gap: 8px !important;
+    }
+    
+    .cell {
+        font-size: 1.5em !important;
+    }
+    
+    /* 카드 게임들 */
+    .cards {
+        gap: -20px !important;
+    }
+    
+    .card {
+        width: 60px !important;
+        height: 84px !important;
+        font-size: 1.2em !important;
+        margin: 0 -10px !important;
+    }
+    
+    /* 조이스틱/버튼 위치 조정 */
+    .controls {
+        font-size: 0.8em !important;
+        padding: 0 10px !important;
+    }
+    
+    /* Stats 페이지 */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* 게임 카드들 */
+    .game-card {
+        padding: 15px !important;
+    }
+    
+    .game-card .icon {
+        font-size: 2em !important;
+    }
+    
+    .game-card h3 {
+        font-size: 1.2em !important;
+    }
+    
+    /* 점수판/HUD */
+    .score-board {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .player-score {
+        padding: 10px 20px !important;
+        font-size: 1.5em !important;
+    }
+    
+    /* 업그레이드 그리드 */
+    .upgrades {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* 게임 메시지 */
+    .message {
+        font-size: 1.2em !important;
+    }
+    
+    /* 난이도 선택 */
+    .difficulty button {
+        padding: 6px 15px !important;
+        font-size: 0.9em !important;
+    }
+    
+    /* 통계 박스 */
+    .stat-box h3 {
+        font-size: 0.8em !important;
+    }
+    
+    .stat-box p {
+        font-size: 1.3em !important;
+    }
+}
+
+/* 아주 작은 화면 (iPhone SE 등) */
+@media (max-width: 375px) {
+    h1 {
+        font-size: 1.5em !important;
+    }
+    
+    .board {
+        transform: scale(0.8) !important;
+    }
+    
+    canvas {
+        border-width: 2px !important;
+    }
+    
+    .game-card {
+        padding: 10px !important;
+    }
+}
+
+/* 가로 모드 */
+@media (max-width: 768px) and (orientation: landscape) {
+    .game-area {
+        flex-direction: row !important;
+    }
+    
+    canvas {
+        max-width: 60% !important;
+    }
+    
+    .side-panel {
+        max-width: 35% !important;
+        flex-direction: column !important;
+    }
+}

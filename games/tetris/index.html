@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, user-scalable=no">
     <title>테트리스</title>
+    <link rel="stylesheet" href="../../mobile-layout.css">
     <style>
         * {
             margin: 0;
@@ -178,9 +179,21 @@
         const nextCanvas = document.getElementById('nextCanvas');
         const nextCtx = nextCanvas.getContext('2d');
         
+        // 모바일 화면 크기 조정
+        function resizeCanvas() {
+            if (window.innerWidth < 768) {
+                const maxWidth = Math.min(window.innerWidth - 40, 400);
+                canvas.width = maxWidth;
+                canvas.height = maxWidth * 2;
+                nextCanvas.width = 120;
+                nextCanvas.height = 120;
+            }
+        }
+        resizeCanvas();
+        
         const COLS = 10;
         const ROWS = 20;
-        const BLOCK_SIZE = 30;
+        const BLOCK_SIZE = canvas.width / COLS;
         
         const SHAPES = [
             [[1,1,1,1]], // I
