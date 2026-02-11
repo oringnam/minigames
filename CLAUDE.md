@@ -35,17 +35,24 @@ minigames/
 | 게임 | 디렉토리 | 특징 | 공통 모듈 적용 |
 |------|----------|------|----------------|
 | 🐍 Snake | `games/snake/` | 파티클, 사운드, 진동, 액자 테두리 | ✅ 완료 |
-| 🧠 Memory | `games/memory/` | 3D 카드 플립, 난이도 시스템 | ✅ 완료 |
-| 💎 Match-3 | `games/match3/` | 빅매치 감지, 파워업 | ✅ 완료 |
+| 🧠 Memory | `games/memory/` | 3D 카드 플립, 난이도 시스템, 셔플 | ✅ 완료 |
+| 💎 Match-3 | `games/match3/` | 빅매치 감지, 파워업, 연쇄 반응 | ✅ 완료 |
 | 🎵 Simon Says | `games/simon/` | 마일스톤 사운드, 대형 버튼 | ✅ 완료 |
 
-**모든 게임이 GameUI + GameUtils 적용 완료!**
+**모든 게임이 GameUI + GameUtils 적용 완료!** (2026-02-11)
 - 통일된 점수판 (메모리 게임 스타일)
 - 통일된 모달 (게임 종료/공유)
 - 통일된 카톡 공유 기능
+- 공통 유틸리티 (shuffle, randomElement 등)
+- 최고점수 자동 갱신
+
+**메인 화면도 공통 모듈화 완료!**
+- 검색/필터링 로직 → GameUI/GameUtils
+- 약 45줄 코드 감소
 
 **제거된 게임** (2026-02-11):
 - 🚀 Space Shooter, 📦 Sokoban, 🃏 Blackjack, 🔨 Whack-a-Mole
+- 🔢 2048, 🤖 클리커, 🏃 러너, ❌ 틱택토, 🧩 미로, 🏓 퐁, 🧱 벽돌깨기
 
 ---
 
@@ -118,8 +125,59 @@ GameUtils.formatTime(125);             // "02:05"
 GameUtils.randomInt(1, 10);            // 1~9
 GameUtils.shuffle([1, 2, 3, 4]);       // 섞인 배열
 GameUtils.randomElement(['a', 'b']);   // 랜덤 요소
+GameUtils.updateHighScore('snake', 1000);  // 최고점수 자동 갱신 (true/false 반환)
+GameUtils.clearCache();                // 캐시 클리어 + 리로드
 
-// 조이스틱/버튼 헬퍼 ⭐ NEW
+// 상위 점수 관리 ⭐ NEW
+GameUtils.loadTopScores('snake', 10);          // 상위 10개 불러오기
+GameUtils.saveTopScores('snake', [100, 90]);   // 상위 점수 저장
+
+// 카드 필터링 (메인화면용) ⭐ NEW
+GameUtils.filterCards({
+    cards: document.querySelectorAll('.game-card'),
+    searchTerm: '스네이크',
+    tag: '아케이드',
+    emptyStateId: 'emptyState'
+});
+
+// 검색창 생성 ⭐ NEW
+GameUI.createSearchBar({
+    placeholder: '🔍 게임 검색...',
+    containerId: 'searchContainer',
+    onSearch: (term) => console.log(term)
+});
+
+// 카테고리 칩 생성 ⭐ NEW
+GameUI.createCategoryChips({
+    categories: [
+        { id: 'all', label: '전체' },
+        { id: 'puzzle', label: '퍼즐', emoji: '🧩' }
+    ],
+    containerId: 'categoryContainer',
+    onSelect: (tag) => console.log(tag)
+});
+
+// 버튼 그룹 생성 ⭐ NEW
+GameUI.createButtonGroup({
+    buttons: [
+        { text: '새 게임', onClick: () => startGame() },
+        { text: '메인으로', href: '../../index.html' }
+    ],
+    containerId: 'buttonsContainer'
+});
+
+// 게임 헤더 생성 ⭐ NEW
+const header = GameUI.createHeader({
+    title: '🐍 스네이크',
+    scoreItems: [
+        { id: 'score', label: '점수', value: 0 },
+        { id: 'highScore', label: '최고', value: 100 }
+    ],
+    containerId: 'headerContainer'
+});
+header.scoreBoard.update('score', 50);
+
+// 조이스틱/버튼 헬퍼
 const controls = new GameControls();
 controls.createJoystick({
     position: 'left',

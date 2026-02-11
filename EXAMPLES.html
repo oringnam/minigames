@@ -165,6 +165,39 @@
         
         // ===== 4. 카톡 공유 버튼 예시 =====
         // (이미 모달 안에 포함되어 있음)
+        
+        // ===== 5. 최고점수 자동 갱신 예시 =====
+        function checkHighScore() {
+            const isNewRecord = GameUtils.updateHighScore('example', score, 'highScore');
+            if (isNewRecord) {
+                alert('🎉 신기록 달성!');
+                scoreBoard.update('highScore', score);
+            }
+        }
+        
+        // ===== 6. 검색/필터링 예시 =====
+        // (메인 페이지에서 사용 중 - index.html 참고)
+        
+        // ===== 7. 버튼 그룹 예시 =====
+        // GameUI.createButtonGroup({
+        //     buttons: [
+        //         { text: '새 게임', onClick: () => alert('새 게임!') },
+        //         { text: '메인으로', href: 'index.html' }
+        //     ],
+        //     containerId: 'buttonsContainer'
+        // });
+        
+        // ===== 8. 게임 헤더 예시 =====
+        // (개별 게임에서 사용 시 - 제목 + 점수판 통합)
+        // const header = GameUI.createHeader({
+        //     title: '🎮 게임 제목',
+        //     scoreItems: [
+        //         { id: 'score', label: '점수', value: 0 },
+        //         { id: 'highScore', label: '최고', value: 100 }
+        //     ],
+        //     containerId: 'headerContainer'
+        // });
+        // header.scoreBoard.update('score', 50);
     </script>
 </body>
 </html>

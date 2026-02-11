@@ -232,6 +232,19 @@ class GameUtils {
     }
     
     /**
+     * 최고점수 갱신 (비교 후 저장)
+     * @returns {boolean} 갱신 여부
+     */
+    static updateHighScore(gameId, currentScore, key = 'highScore') {
+        const highScore = GameUtils.getScore(gameId, key, 0);
+        if (currentScore > highScore) {
+            GameUtils.saveScore(gameId, key, currentScore);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * 카드 필터링 (검색어 또는 태그)
      */
     static filterCards(options = {}) {
@@ -419,6 +432,89 @@ class GameUI {
         }
         
         return container;
+    }
+    
+    /**
+     * 버튼 그룹 생성
+     * @param {Object} options
+     * @param {Array} options.buttons - [{ text: '새 게임', onClick: fn }, ...]
+     * @param {string} options.containerId - 버튼 그룹을 넣을 컨테이너 ID
+     * @returns {HTMLElement}
+     */
+    static createButtonGroup(options = {}) {
+        const {
+            buttons = [],
+            containerId = null
+        } = options;
+        
+        const group = document.createElement('div');
+        group.className = 'btn-group';
+        
+        buttons.forEach(btn => {
+            if (btn.href) {
+                const link = document.createElement('a');
+                link.href = btn.href;
+                link.className = 'btn';
+                link.textContent = btn.text;
+                group.appendChild(link);
+            } else {
+                const button = document.createElement('button');
+                button.className = 'btn';
+                button.textContent = btn.text;
+                button.onclick = btn.onClick;
+                if (btn.disabled) button.disabled = true;
+                group.appendChild(button);
+            }
+        });
+        
+        if (containerId) {
+            document.getElementById(containerId).appendChild(group);
+        }
+        
+        return group;
+    }
+    
+    /**
+     * 게임 헤더 생성 (제목 + 점수판)
+     * @param {Object} options
+     * @param {string} options.title - 게임 제목 (이모지 포함)
+     * @param {Array} options.scoreItems - 점수판 아이템 (createScoreBoard와 동일)
+     * @param {string} options.containerId - 헤더를 넣을 컨테이너 ID
+     * @returns {Object} { title: HTMLElement, scoreBoard: { update, remove } }
+     */
+    static createHeader(options = {}) {
+        const {
+            title = '🎮 게임',
+            scoreItems = [],
+            containerId = null
+        } = options;
+        
+        const header = document.createElement('div');
+        header.className = 'game-header';
+        
+        const h1 = document.createElement('h1');
+        h1.textContent = title;
+        header.appendChild(h1);
+        
+        const scoreBoardContainer = document.createElement('div');
+        header.appendChild(scoreBoardContainer);
+        
+        const scoreBoard = GameUI.createScoreBoard({
+            items: scoreItems,
+            containerId: null
+        });
+        
+        scoreBoardContainer.appendChild(scoreBoard.getElement());
+        
+        if (containerId) {
+            document.getElementById(containerId).appendChild(header);
+        }
+        
+        return {
+            header: header,
+            title: h1,
+            scoreBoard: scoreBoard
+        };
     }
 }
 
@@ -697,6 +793,40 @@ if (typeof document !== 'undefined') {
             background: white;
             color: #667eea;
             font-weight: bold;
+        }
+        
+        /* 버튼 그룹 */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
         
         /* 모바일 최적화 */
