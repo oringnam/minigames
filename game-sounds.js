@@ -39,6 +39,15 @@ class GameSounds {
         oscillator.stop(this.audioContext.currentTime + duration);
     }
     
+    // 통합 재생 메서드 (문자열로 효과음 호출)
+    play(soundName) {
+        if (typeof this[soundName] === 'function') {
+            this[soundName]();
+        } else {
+            console.warn(`Sound "${soundName}" not found`);
+        }
+    }
+    
     // 효과음들
     click() {
         this.playTone(800, 0.05, 'square');
@@ -113,15 +122,63 @@ class GameSounds {
     }
 }
 
-// 파티클 효과 시스템
+// 파티클 효과 시스템 (두 가지 모드 지원)
 class ParticleEffect {
-    constructor(canvas, ctx) {
-        this.canvas = canvas;
-        this.ctx = ctx;
-        this.particles = [];
+    constructor(...args) {
+        // 모드 판단: (x, y, color) vs (canvas, ctx)
+        if (args.length === 2 && args[0].tagName === 'CANVAS') {
+            // 파티클 시스템 모드 (Snake 스타일)
+            this.isSystem = true;
+            this.canvas = args[0];
+            this.ctx = args[1];
+            this.particles = [];
+        } else {
+            // 개별 파티클 모드 (Flappy 등)
+            this.isSystem = false;
+            this.x = args[0] || 0;
+            this.y = args[1] || 0;
+            this.vx = (Math.random() - 0.5) * 6;
+            this.vy = (Math.random() - 0.5) * 6 - 2;
+            this.color = args[2] || '#FFD700';
+            this.life = 1.0;
+            this.size = 3 + Math.random() * 3;
+        }
     }
     
+    // 개별 파티클 메서드
+    update() {
+        if (this.isSystem) {
+            // 시스템 모드
+            this.updateSystem();
+            return;
+        }
+        // 개별 파티클 모드
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.3; // gravity
+        this.life -= 0.02;
+    }
+    
+    draw(ctx) {
+        if (this.isSystem) return;
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+    
+    isDead() {
+        if (this.isSystem) return false;
+        return this.life <= 0;
+    }
+    
+    // 파티클 시스템 메서드 (Snake용)
+    
     emit(x, y, options = {}) {
+        if (!this.isSystem) return;
+        
         const defaults = {
             count: 10,
             color: '#FFD700',
@@ -149,7 +206,8 @@ class ParticleEffect {
         }
     }
     
-    update() {
+    updateSystem() {
+        if (!this.isSystem) return;
         this.particles = this.particles.filter(p => {
             p.x += p.vx;
             p.y += p.vy;
@@ -169,6 +227,7 @@ class ParticleEffect {
     }
     
     clear() {
+        if (!this.isSystem) return;
         this.particles = [];
     }
 }
