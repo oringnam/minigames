@@ -280,8 +280,8 @@
                     renderY: snake[0].y + velocityY
                 };
                 
-                // 벽 충돌 체크
-                if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                // 벽 충돌 체크 (테두리 고려)
+                if (head.x < 1 || head.x >= tileCount - 1 || head.y < 1 || head.y >= tileCount - 1) {
                     if (!isGameOver) gameOver();
                     return;
                 }
@@ -341,6 +341,27 @@
             // 배경
             ctx.fillStyle = '#f8f8f8';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 액자 테두리 (두껍게)
+            const borderWidth = gridSize;
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            ctx.fillStyle = gradient;
+            // 상단
+            ctx.fillRect(0, 0, canvas.width, borderWidth);
+            // 하단
+            ctx.fillRect(0, canvas.height - borderWidth, canvas.width, borderWidth);
+            // 좌측
+            ctx.fillRect(0, 0, borderWidth, canvas.height);
+            // 우측
+            ctx.fillRect(canvas.width - borderWidth, 0, borderWidth, canvas.height);
+            
+            // 테두리 안쪽 그림자 효과
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(borderWidth, borderWidth, canvas.width - borderWidth * 2, canvas.height - borderWidth * 2);
             
             // 파티클
             particles.update();
@@ -413,8 +434,9 @@
         }
         
         function generateFood() {
-            foodX = Math.floor(Math.random() * tileCount);
-            foodY = Math.floor(Math.random() * tileCount);
+            // 테두리 안쪽에만 생성 (1칸 여유)
+            foodX = Math.floor(Math.random() * (tileCount - 2)) + 1;
+            foodY = Math.floor(Math.random() * (tileCount - 2)) + 1;
             
             // 뱀과 겹치지 않게
             for (let segment of snake) {
