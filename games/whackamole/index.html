@@ -29,6 +29,7 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
+            position: relative;
         }
         
         h1 {
@@ -62,6 +63,25 @@
             color: #27ae60;
         }
         
+        .combo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
         .game-board {
             display: grid;
             grid-template-columns: repeat(3, 150px);
@@ -69,6 +89,24 @@
             gap: 20px;
             margin: 0 auto 30px;
             width: fit-content;
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(3, 100px);
+                grid-template-rows: repeat(3, 100px);
+                gap: 15px;
+            }
+            .hole {
+                width: 100px !important;
+                height: 100px !important;
+            }
+            .mole {
+                width: 60px !important;
+                height: 60px !important;
+                font-size: 3em !important;
+            }
         }
         
         .hole {
@@ -106,6 +144,24 @@
             50% { transform: translateX(-50%) scale(1.2) rotate(10deg); }
         }
         
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.5em;
+            animation: float-up 1s forwards;
+        }
+        
+        @keyframes float-up {
+            0% { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% { 
+                opacity: 0;
+                transform: translateY(-100px) scale(0.5);
+            }
+        }
+        
         .btn-group {
             display: flex;
             gap: 15px;
@@ -129,10 +185,13 @@
             background: #2ecc71;
         }
     </style>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🔨 두더지 잡기</h1>
+        
+        <div class="combo" id="combo">🔥 COMBO x0</div>
         
         <div class="game-info">
             <div class="info-box">
@@ -160,12 +219,16 @@
     <script>
         const board = document.getElementById('board');
         const holes = [];
+        const sounds = new GameSounds();
+        
         let score = 0;
         let timeLeft = 30;
         let highScore = localStorage.getItem('whackHighScore') || 0;
         let gameRunning = false;
         let moleTimer = null;
         let countdownTimer = null;
+        let combo = 0;
+        let comboTimer = null;
         
         document.getElementById('highScore').textContent = highScore;
         
@@ -182,10 +245,15 @@
         function startGame() {
             score = 0;
             timeLeft = 30;
+            combo = 0;
             gameRunning = true;
             
             document.getElementById('score').textContent = score;
             document.getElementById('time').textContent = timeLeft;
+            document.getElementById('combo').style.display = 'none';
+            
+            // 🎵 시작 사운드
+            sounds.play('click');
             
             // 모든 두더지 숨기기
             holes.forEach(hole => {
@@ -194,6 +262,7 @@
             
             if (moleTimer) clearInterval(moleTimer);
             if (countdownTimer) clearInterval(countdownTimer);
+            if (comboTimer) clearTimeout(comboTimer);
             
             // 두더지 랜덤 출현
             moleTimer = setInterval(popUpMole, 800);
@@ -224,24 +293,102 @@
             // 랜덤 시간 후 숨기기
             const hideTime = 600 + Math.random() * 800;
             setTimeout(() => {
-                mole.classList.remove('up');
+                if (mole.classList.contains('up')) {
+                    mole.classList.remove('up');
+                    // 놓쳤으면 콤보 리셋
+                    resetCombo();
+                }
             }, hideTime);
+        }
+        
+        function createParticle(x, y, text, color) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = text;
+            particle.style.color = color;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            board.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+        
+        function updateCombo() {
+            combo++;
+            
+            if (combo >= 3) {
+                const comboEl = document.getElementById('combo');
+                comboEl.textContent = `🔥 COMBO x${combo}`;
+                comboEl.style.display = 'block';
+                comboEl.style.animation = 'none';
+                setTimeout(() => {
+                    comboEl.style.animation = 'bounce 0.5s';
+                }, 10);
+            }
+            
+            // 콤보 타이머 리셋
+            if (comboTimer) clearTimeout(comboTimer);
+            comboTimer = setTimeout(resetCombo, 2000);
+        }
+        
+        function resetCombo() {
+            if (combo >= 3) {
+                // 콤보 종료 사운드
+                sounds.play('error');
+            }
+            combo = 0;
+            document.getElementById('combo').style.display = 'none';
         }
         
         function whackMole(index) {
             if (!gameRunning) return;
             
-            const mole = holes[index].querySelector('.mole');
+            const hole = holes[index];
+            const mole = hole.querySelector('.mole');
             
             if (mole.classList.contains('up') && !mole.classList.contains('hit')) {
                 mole.classList.add('hit');
                 mole.classList.remove('up');
-                score++;
+                
+                // 콤보 업데이트
+                updateCombo();
+                
+                // 점수 계산 (콤보 보너스)
+                const baseScore = 1;
+                const comboBonus = Math.max(0, combo - 2);
+                const earnedScore = baseScore + comboBonus;
+                score += earnedScore;
                 document.getElementById('score').textContent = score;
+                
+                // 🎵 사운드 + 진동
+                if (combo >= 5) {
+                    sounds.play('powerup'); // 콤보 5 이상!
+                    vibrate([30, 30, 30]);
+                } else {
+                    sounds.play('pop');
+                    vibrate(30);
+                }
+                
+                // 파티클 효과
+                const rect = hole.getBoundingClientRect();
+                const boardRect = board.getBoundingClientRect();
+                const x = rect.left - boardRect.left + rect.width / 2;
+                const y = rect.top - boardRect.top + rect.height / 2;
+                
+                if (earnedScore > 1) {
+                    createParticle(x, y, `+${earnedScore}`, '#FFD700');
+                } else {
+                    createParticle(x, y, '💥', '#FFA500');
+                }
                 
                 setTimeout(() => {
                     mole.classList.remove('hit');
                 }, 300);
+            } else {
+                // 빗나감 - 작은 진동
+                vibrate(10);
             }
         }
         
@@ -249,20 +396,34 @@
             gameRunning = false;
             clearInterval(moleTimer);
             clearInterval(countdownTimer);
-            
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('whackHighScore', highScore);
-                document.getElementById('highScore').textContent = highScore;
-                alert(`🎉 새 기록! ${score}점!`);
-            } else {
-                alert(`게임 오버! 점수: ${score}`);
-            }
+            if (comboTimer) clearTimeout(comboTimer);
             
             // 모든 두더지 숨기기
             holes.forEach(hole => {
                 hole.querySelector('.mole').classList.remove('up', 'hit');
             });
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('whackHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+                
+                // 🎵 신기록!
+                sounds.play('victory');
+                vibrate([100, 50, 100, 50, 200]);
+                
+                setTimeout(() => {
+                    alert(`🎉 새 기록! ${score}점!`);
+                }, 500);
+            } else {
+                // 🎵 일반 게임오버
+                sounds.play('gameover');
+                vibrate(200);
+                
+                setTimeout(() => {
+                    alert(`게임 오버! 점수: ${score}`);
+                }, 500);
+            }
         }
     </script>
 </body>
