@@ -119,10 +119,71 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         
+        /* 조이스틱 컨테이너 (게임 내부) */
+        .joystick-wrapper {
+            position: relative;
+            width: 100%;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .joystick-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            touch-action: none;
+        }
+        
+        .joystick-container:not(.active) {
+            opacity: 0.7;
+        }
+        
+        .joystick-container.active {
+            opacity: 1;
+        }
+        
+        .joystick-base {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(80,80,80,0.9) 0%, 
+                rgba(40,40,40,0.95) 100%);
+            border: 4px solid rgba(60,60,60,0.8);
+            box-shadow: 
+                inset 0 -5px 15px rgba(0,0,0,0.5),
+                0 5px 20px rgba(0,0,0,0.4);
+        }
+        
+        .joystick-stick {
+            position: absolute;
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, 
+                rgba(220,220,220,1) 0%, 
+                rgba(160,160,160,1) 100%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.5),
+                inset 0 2px 5px rgba(255,255,255,0.5);
+            border: 2px solid rgba(100,100,100,0.6);
+            transition: opacity 0.2s;
+        }
+        
+        .joystick-container.active .joystick-stick {
+            opacity: 1;
+        }
+        
         /* Mobile message */
         .mobile-hint {
-            position: fixed;
-            bottom: 140px;
+            position: absolute;
+            bottom: 150px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
@@ -141,7 +202,6 @@
             pointer-events: none;
         }
     </style>
-    <script src="../../mobile-controls.js"></script>
     <script src="../../game-sounds.js"></script>
     <script src="../../game-utils.js"></script>
 </head>
@@ -154,6 +214,14 @@
             화살표 키 또는 WASD로 이동 | 스페이스바로 일시정지
         </div>
         <a href="../../index.html" class="back-btn">← 메인으로</a>
+        
+        <!-- 조이스틱 (모바일만 표시) -->
+        <div class="joystick-wrapper" id="joystickWrapper" style="display: none;">
+            <div class="joystick-container" id="joystick">
+                <div class="joystick-base"></div>
+                <div class="joystick-stick" id="joystickStick"></div>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -453,47 +521,99 @@
         generateFood();
         animationLoop = requestAnimationFrame(animate);
         
-        // Mobile controls
+        // Mobile controls (조이스틱 직접 구현)
         if (isMobile()) {
-            let lastDirection = { x: 0, y: 0 };
+            const joystickWrapper = document.getElementById('joystickWrapper');
+            const joystickContainer = document.getElementById('joystick');
+            const joystickStick = document.getElementById('joystickStick');
             
-            const joystick = new VirtualJoystick(null, {
-                position: 'bottom-left',
-                radius: 75,
-                innerRadius: 38,
-                onChange: (direction) => {
-                    const threshold = 0.4;
-                    const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
-                    
-                    if (magnitude < threshold) return;
-                    
-                    // 주 방향 결정 (더 명확한 방향 감지)
-                    const absX = Math.abs(direction.x);
-                    const absY = Math.abs(direction.y);
+            joystickWrapper.style.display = 'flex';
+            
+            let active = false;
+            let centerX = 0;
+            let centerY = 0;
+            const maxDistance = 37; // 반지름 절반
+            
+            function updateStickPosition(x, y) {
+                const dx = x - centerX;
+                const dy = y - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                let limitedDx = dx;
+                let limitedDy = dy;
+                
+                if (distance > maxDistance) {
+                    limitedDx = (dx / distance) * maxDistance;
+                    limitedDy = (dy / distance) * maxDistance;
+                }
+                
+                joystickStick.style.transform = `translate(calc(-50% + ${limitedDx}px), calc(-50% + ${limitedDy}px))`;
+                
+                // 방향 결정
+                const normalizedX = limitedDx / maxDistance;
+                const normalizedY = limitedDy / maxDistance;
+                
+                if (distance > maxDistance * 0.4) {
+                    const absX = Math.abs(normalizedX);
+                    const absY = Math.abs(normalizedY);
                     
                     if (absX > absY * 1.2) {
-                        // 가로 우선
-                        if (direction.x > 0 && velocityX !== -1) {
+                        if (normalizedX > 0 && velocityX !== -1) {
                             velocityX = 1;
                             velocityY = 0;
-                        } else if (direction.x < 0 && velocityX !== 1) {
+                        } else if (normalizedX < 0 && velocityX !== 1) {
                             velocityX = -1;
                             velocityY = 0;
                         }
                     } else if (absY > absX * 1.2) {
-                        // 세로 우선
-                        if (direction.y > 0 && velocityY !== -1) {
+                        if (normalizedY > 0 && velocityY !== -1) {
                             velocityX = 0;
                             velocityY = 1;
-                        } else if (direction.y < 0 && velocityY !== 1) {
+                        } else if (normalizedY < 0 && velocityY !== 1) {
                             velocityX = 0;
                             velocityY = -1;
                         }
                     }
                 }
-            });
+            }
             
-            // Show mobile hint
+            function handleStart(e) {
+                e.preventDefault();
+                active = true;
+                joystickContainer.classList.add('active');
+                
+                const rect = joystickContainer.getBoundingClientRect();
+                centerX = rect.left + rect.width / 2;
+                centerY = rect.top + rect.height / 2;
+            }
+            
+            function handleMove(e) {
+                if (!active) return;
+                e.preventDefault();
+                
+                const touch = e.touches ? e.touches[0] : e;
+                updateStickPosition(touch.clientX, touch.clientY);
+            }
+            
+            function handleEnd(e) {
+                if (!active) return;
+                e.preventDefault();
+                
+                active = false;
+                joystickContainer.classList.remove('active');
+                joystickStick.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            joystickContainer.addEventListener('touchstart', handleStart);
+            joystickContainer.addEventListener('touchmove', handleMove);
+            joystickContainer.addEventListener('touchend', handleEnd);
+            
+            // Desktop testing
+            joystickContainer.addEventListener('mousedown', handleStart);
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('mouseup', handleEnd);
+            
+            // Show hint
             const hint = document.createElement('div');
             hint.className = 'mobile-hint';
             hint.textContent = '조이스틱으로 이동';
