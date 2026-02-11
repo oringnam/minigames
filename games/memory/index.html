@@ -68,10 +68,6 @@
             font-weight: bold;
         }
         
-        .lives {
-            font-size: 1.5em;
-        }
-        
         .memory-board {
             display: grid;
             gap: 5px;
@@ -238,9 +234,9 @@
                 <h3>최고</h3>
                 <p id="bestStage">1</p>
             </div>
-            <div class="header-item lives">
+            <div class="header-item">
                 <h3>목숨</h3>
-                <p id="lives">❤️❤️❤️</p>
+                <p id="lives">❤️❤️❤️❤️❤️</p>
             </div>
         </div>
         
@@ -260,7 +256,7 @@
         
         let stage = 1;
         let bestStage = localStorage.getItem('memoryChallengeBest') || 1;
-        let lives = 3;
+        let lives = 5;
         let maxLives = 5;
         let cards = [];
         let flippedCards = [];
@@ -271,11 +267,9 @@
         document.getElementById('bestStage').textContent = bestStage;
         
         const stageConfig = {
-            1: { cols: 4, rows: 3, pairs: 6 },    // 4x3, 12카드 (6쌍)
+            1: { cols: 4, rows: 2, pairs: 4 },    // 4x2, 8카드 (4쌍)
             2: { cols: 4, rows: 4, pairs: 8 },    // 4x4, 16카드 (8쌍)
-            3: { cols: 5, rows: 5, pairs: 12 },   // 5x5, 24카드 (12쌍) + 1빈칸
-            4: { cols: 5, rows: 5, pairs: 12, shuffle: 4 },  // 5x5, 카드 4개 섞기
-            5: { cols: 5, rows: 5, pairs: 12, shuffle: 8 }   // 5x5, 카드 8개 섞기
+            3: { cols: 4, rows: 6, pairs: 12 }    // 4x6, 24카드 (12쌍)
         };
         
         function shuffle(array) {
@@ -288,7 +282,7 @@
         
         function startGame() {
             stage = 1;
-            lives = 3;
+            lives = 5;
             updateUI();
             startStage();
         }
@@ -492,10 +486,10 @@
                 
                 updateUI();
                 
-                if (stage > 5) {
+                if (stage > 3) {
                     alert(`🎉 모든 단계 클리어!\n최종 목숨: ${lives}개`);
                     stage = 1;
-                    lives = 3;
+                    lives = 5;
                     updateUI();
                 } else {
                     document.getElementById('message').textContent = `${stage-1}단계 클리어!`;
@@ -517,7 +511,7 @@
             setTimeout(() => {
                 alert(`게임 오버!\n\n최종 단계: ${stage}\n최고 단계: ${bestStage}`);
                 stage = 1;
-                lives = 3;
+                lives = 5;
                 updateUI();
             }, 1000);
         }
