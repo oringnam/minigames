@@ -175,6 +175,7 @@
             background: #2980b9;
         }
     </style>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
@@ -218,6 +219,9 @@
         let bet = 10;
         let gameActive = false;
         let dealerHidden = true;
+        
+        // 사운드
+        const sounds = new GameSounds();
         
         function createDeck() {
             deck = [];
@@ -296,6 +300,8 @@
         function deal() {
             if (chips < bet) {
                 document.getElementById('message').textContent = '칩이 부족합니다!';
+                sounds.play('error');
+                vibrate(100);
                 return;
             }
             
@@ -313,12 +319,18 @@
             document.getElementById('standBtn').disabled = false;
             document.getElementById('dealBtn').disabled = true;
             
+            // 🎵 카드 나눠주기 사운드
+            sounds.play('click');
+            vibrate(30);
+            
             displayHand(playerHand, 'playerCards');
             displayHand(dealerHand, 'dealerCards', true);
             updateScores();
             
             // 블랙잭 체크
             if (getHandValue(playerHand) === 21) {
+                sounds.play('powerup'); // 블랙잭!
+                vibrate([50, 30, 50]);
                 stand();
             }
         }
@@ -328,10 +340,20 @@
             displayHand(playerHand, 'playerCards');
             updateScores();
             
+            // 🎵 카드 받기 사운드
+            sounds.play('pop');
+            vibrate(20);
+            
             const playerValue = getHandValue(playerHand);
             if (playerValue > 21) {
+                // 버스트!
+                sounds.play('wrong');
+                vibrate(200);
                 endGame('버스트! 패배!');
             } else if (playerValue === 21) {
+                // 21!
+                sounds.play('success');
+                vibrate([50, 30, 50]);
                 stand();
             }
         }
@@ -343,6 +365,10 @@
             
             document.getElementById('hitBtn').disabled = true;
             document.getElementById('standBtn').disabled = true;
+            
+            // 🎵 스탠드 사운드
+            sounds.play('click');
+            vibrate(30);
             
             dealerPlay();
         }
@@ -356,6 +382,10 @@
                     displayHand(dealerHand, 'dealerCards');
                     updateScores();
                     dealerValue = getHandValue(dealerHand);
+                    
+                    // 🎵 딜러 카드 받기 사운드
+                    sounds.play('pop');
+                    vibrate(20);
                 } else {
                     clearInterval(interval);
                     checkWinner();
@@ -387,10 +417,29 @@
             document.getElementById('standBtn').disabled = true;
             document.getElementById('dealBtn').disabled = false;
             
+            // 🎵 승패 사운드
+            if (winAmount > bet) {
+                // 승리!
+                sounds.play('victory');
+                vibrate([100, 50, 100, 50, 200]);
+            } else if (winAmount === bet) {
+                // 무승부
+                sounds.play('click');
+                vibrate(50);
+            } else {
+                // 패배
+                sounds.play('gameover');
+                vibrate(200);
+            }
+            
             if (chips <= 0) {
                 document.getElementById('message').textContent = '파산! 게임 오버!';
                 chips = 1000;
                 document.getElementById('chips').textContent = chips;
+                
+                // 파산 사운드
+                sounds.play('wrong');
+                vibrate([100, 50, 100, 50, 100]);
             }
         }
     </script>
