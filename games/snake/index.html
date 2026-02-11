@@ -492,6 +492,10 @@
             scoreBoard.update('score', 0);
             generateFood();
             
+            // 플레이 추적
+            GameUtils.trackPlay('snake');
+            GameUtils.startTimer('snake');
+            
             if (animationLoop) cancelAnimationFrame(animationLoop);
             animationLoop = requestAnimationFrame(animate);
         }
@@ -520,6 +524,8 @@
         
         // 게임 시작
         generateFood();
+        GameUtils.trackPlay('snake');
+        GameUtils.startTimer('snake');
         animationLoop = requestAnimationFrame(animate);
         
         // 모바일 감지
