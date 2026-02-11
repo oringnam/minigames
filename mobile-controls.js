@@ -9,7 +9,7 @@ function createControlPanel() {
     panel.id = 'mobile-control-panel';
     panel.style.cssText = `
         position: fixed;
-        bottom: 0;
+        bottom: 20px;
         left: 0;
         right: 0;
         height: 180px;
@@ -17,6 +17,7 @@ function createControlPanel() {
             rgba(30,30,35,0.98) 0%, 
             rgba(15,15,20,0.99) 100%);
         border-top: 4px solid #444;
+        border-radius: 20px 20px 0 0;
         box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
         z-index: 999;
         display: flex;
