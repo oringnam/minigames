@@ -57,6 +57,13 @@ minigames/
 - 검색/필터링 로직 → GameUI/GameUtils
 - 약 45줄 코드 감소
 
+**게임성 개선 완료!** (2026-02-12 새벽)
+- 🐍 Snake: 플레이 추적 (통계 수집)
+- 🧠 Memory: 콤보 시스템 (연속 매칭 보너스, 3콤보 이상 🔥 메시지)
+- 💎 Match-3: 연쇄 보너스 (2연쇄부터 +5점씩, 3연쇄 이상 파워업)
+- 🎵 Simon Says: 속도 증가 (10레벨마다 50ms 감소, 최소 300ms)
+- 모든 게임: trackPlay(), startTimer() 통계 추적
+
 **제거된 게임** (2026-02-11):
 - 🚀 Space Shooter, 📦 Sokoban, 🃏 Blackjack, 🔨 Whack-a-Mole
 - 🔢 2048, 🤖 클리커, 🏃 러너, ❌ 틱택토, 🧩 미로, 🏓 퐁, 🧱 벽돌깨기
