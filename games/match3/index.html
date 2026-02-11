@@ -233,7 +233,10 @@
             if (selectedGem === null) {
                 selectedGem = {row, col};
                 highlightGem(row, col);
-                sounds.click();
+                
+                // 🎵 선택 사운드
+                sounds.play('click');
+                vibrate(10);
             } else {
                 const {row: r1, col: c1} = selectedGem;
                 
@@ -250,7 +253,9 @@
                             setTimeout(checkGameEnd, 500);
                         }
                     } else {
-                        // 매치 없으면 되돌리기
+                        // 🎵 매치 없으면 되돌리기
+                        sounds.play('error');
+                        vibrate(100);
                         swapGems(r1, c1, row, col);
                     }
                 }
@@ -315,12 +320,18 @@
             const matches = findMatches();
             
             if (matches.length > 0) {
-                score += matches.length * 10;
+                const points = matches.length * 10;
+                score += points;
                 document.getElementById('score').textContent = score;
                 
-                // 사운드 & 진동
-                sounds.match();
-                vibrate(matches.length > 5 ? 50 : 30);
+                // 🎵 사운드 & 진동 (큰 매치는 파워업 사운드)
+                if (matches.length >= 5) {
+                    sounds.play('powerup');
+                    vibrate([50, 30, 50]);
+                } else {
+                    sounds.play('match');
+                    vibrate(30);
+                }
                 
                 // 매치된 보석 표시
                 matches.forEach(({r, c}) => {
@@ -377,13 +388,25 @@
         
         function checkGameEnd() {
             const won = score >= target;
+            
+            // 🎵 승리/패배 사운드 + 진동
+            if (won) {
+                sounds.play('victory');
+                vibrate([100, 50, 100, 50, 200]);
+            } else {
+                sounds.play('gameover');
+                vibrate(200);
+            }
+            
             const message = won 
                 ? `🎉 축하합니다! 목표 달성!\n\n점수: ${score}\n이동: ${30 - moves}번 사용`
                 : `게임 오버!\n\n점수: ${score} / 목표: ${target}`;
             
-            if (confirm(message + '\n\n📋 점수를 복사하시겠습니까?')) {
-                shareScore(won);
-            }
+            setTimeout(() => {
+                if (confirm(message + '\n\n📋 점수를 복사하시겠습니까?')) {
+                    shareScore(won);
+                }
+            }, 500);
         }
         
         function shareScore(won) {
@@ -423,6 +446,9 @@
             
             document.getElementById('score').textContent = score;
             document.getElementById('moves').textContent = moves;
+            
+            // 🎵 게임 시작 사운드
+            sounds.play('click');
             
             createBoard();
             renderBoard();
