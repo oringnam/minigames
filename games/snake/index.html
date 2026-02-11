@@ -108,80 +108,6 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
         
-        .game-over {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-        
-        .game-over-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 50px;
-            border-radius: 30px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            min-width: 320px;
-            max-width: 90vw;
-        }
-        
-        .game-over h2 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .game-over p {
-            font-size: 1.3em;
-            margin: 15px 0;
-            opacity: 0.9;
-        }
-        
-        .game-over button {
-            padding: 15px 40px;
-            background: white;
-            color: #667eea;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 10px 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-            display: inline-block;
-        }
-        
-        .game-over button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-        
-        .game-over .share-btn {
-            background: #FFD700;
-            color: #333;
-        }
-        
-        .game-over .share-btn:hover {
-            background: #FFC700;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
         /* Mobile message */
         .mobile-hint {
             position: fixed;
@@ -205,32 +131,17 @@
     </style>
     <script src="../../mobile-controls.js"></script>
     <script src="../../game-sounds.js"></script>
+    <script src="../../game-utils.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🐍 스네이크</h1>
-        <div class="game-info">
-            <div class="score">점수: <span id="score">0</span></div>
-            <div class="high-score">최고점수: <span id="highScore">0</span></div>
-        </div>
+        <div id="scoreBoard"></div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <div class="controls">
             화살표 키 또는 WASD로 이동 | 스페이스바로 일시정지
         </div>
         <a href="../../index.html" class="back-btn">← 메인으로</a>
-    </div>
-    
-    <div class="game-over" id="gameOver">
-        <div class="game-over-content">
-            <h2>🎮</h2>
-            <h2 style="white-space: nowrap;">게임 오버!</h2>
-            <p>최종 점수</p>
-            <p style="font-size: 2.5em; font-weight: bold; margin: 10px 0;"><span id="finalScore">0</span></p>
-            <div style="margin-top: 20px;">
-                <button onclick="shareScore()" class="share-btn">📋 공유하기</button>
-                <button onclick="restartGame()">🔄 다시 시작</button>
-            </div>
-        </div>
     </div>
     
     <script>
@@ -257,7 +168,7 @@
         let foodX = 15;
         let foodY = 15;
         let score = 0;
-        let highScore = localStorage.getItem('snakeHighScore') || 0;
+        let highScore = GameUtils.getScore('snake', 'highScore', 0);
         let gameLoop;
         let animationLoop;
         let paused = false;
@@ -266,7 +177,14 @@
         let MOVE_INTERVAL = 150; // 이동 간격 (ms)
         let isGameOver = false; // 게임오버 플래그
         
-        document.getElementById('highScore').textContent = highScore;
+        // 점수판 생성 (GameUI)
+        const scoreBoard = GameUI.createScoreBoard({
+            items: [
+                { id: 'score', label: '점수', value: 0 },
+                { id: 'highScore', label: '최고', value: highScore }
+            ],
+            containerId: 'scoreBoard'
+        });
         
         function updateGame(currentTime) {
             if (paused || isGameOver) return;
@@ -299,7 +217,7 @@
                 // 먹이 먹기
                 if (head.x === foodX && head.y === foodY) {
                     score++;
-                    document.getElementById('score').textContent = score;
+                    scoreBoard.update('score', score);
                     
                     sounds.coin();
                     vibrate(30);
@@ -313,8 +231,8 @@
                     
                     if (score > highScore) {
                         highScore = score;
-                        localStorage.setItem('snakeHighScore', highScore);
-                        document.getElementById('highScore').textContent = highScore;
+                        GameUtils.saveScore('snake', 'highScore', highScore);
+                        scoreBoard.update('highScore', highScore);
                         sounds.powerup();
                     }
                 } else {
@@ -455,40 +373,30 @@
             sounds.gameover();
             vibrate([100, 50, 100]);
             shakeScreen(canvas, 8, 300);
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOver').style.display = 'block';
-        }
-        
-        function shareScore() {
-            const text = `🐍 스네이크 게임\n\n🎯 점수: ${score}점\n🏆 최고점수: ${highScore}점\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
             
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('📋 클립보드에 복사되었습니다!\n카톡에 붙여넣기 하세요!');
-                    vibrate(50);
-                }).catch(() => {
-                    fallbackCopy(text);
+            // 모달 표시 (GameUtils)
+            setTimeout(() => {
+                GameUtils.createModal({
+                    title: '💀 게임 오버!',
+                    stats: [
+                        { label: '최종 점수', value: score },
+                        { label: '최고 점수', value: highScore }
+                    ],
+                    buttons: [
+                        {
+                            text: '📱 카톡 공유',
+                            action: () => {
+                                const text = `🐍 스네이크 게임\n\n점수: ${score}점\n최고: ${highScore}점\n\nhttps://oringnam.github.io/minigames/`;
+                                GameUtils.copyToClipboard(text);
+                            }
+                        },
+                        {
+                            text: '다시 하기',
+                            action: restartGame
+                        }
+                    ]
                 });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-        
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                alert('📋 클립보드에 복사되었습니다!\n카톡에 붙여넣기 하세요!');
-                vibrate(50);
-            } catch (err) {
-                alert('복사 실패. 수동으로 복사해주세요:\n\n' + text);
-            }
-            document.body.removeChild(textarea);
+            }, 300);
         }
         
         function restartGame() {
@@ -499,9 +407,8 @@
             paused = false;
             moveProgress = 0;
             lastMoveTime = 0;
-            isGameOver = false; // 게임오버 플래그 리셋
-            document.getElementById('score').textContent = score;
-            document.getElementById('gameOver').style.display = 'none';
+            isGameOver = false;
+            scoreBoard.update('score', 0);
             generateFood();
             
             if (animationLoop) cancelAnimationFrame(animationLoop);
