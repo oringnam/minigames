@@ -1,12 +1,59 @@
 // Mobile Virtual Controls Library
+
+// 컨트롤 패널 생성
+function createControlPanel() {
+    const existing = document.getElementById('mobile-control-panel');
+    if (existing) return existing;
+    
+    const panel = document.createElement('div');
+    panel.id = 'mobile-control-panel';
+    panel.style.cssText = `
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 180px;
+        background: linear-gradient(180deg, 
+            rgba(30,30,35,0.98) 0%, 
+            rgba(15,15,20,0.99) 100%);
+        border-top: 4px solid #444;
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        touch-action: none;
+    `;
+    
+    // 타이틀 추가
+    const title = document.createElement('div');
+    title.style.cssText = `
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.4);
+        font-size: 0.75em;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    `;
+    title.textContent = '🕹️ Controls';
+    panel.appendChild(title);
+    
+    document.body.appendChild(panel);
+    return panel;
+}
+
 class VirtualJoystick {
     constructor(container, options = {}) {
         this.container = container;
         this.options = {
             radius: options.radius || 60,
             innerRadius: options.innerRadius || 30,
-            color: options.color || 'rgba(255, 255, 255, 0.5)',
-            innerColor: options.innerColor || 'rgba(255, 255, 255, 0.8)',
+            color: options.color || 'rgba(100, 100, 100, 0.8)',
+            innerColor: options.innerColor || 'rgba(200, 200, 200, 0.9)',
             position: options.position || 'bottom-left',
             ...options
         };
@@ -23,16 +70,17 @@ class VirtualJoystick {
     }
     
     createJoystick() {
+        // 컨트롤 패널 생성
+        const panel = createControlPanel();
+        
         // Container
         this.joystickContainer = document.createElement('div');
         this.joystickContainer.style.cssText = `
-            position: fixed;
+            position: relative;
             width: ${this.options.radius * 2}px;
             height: ${this.options.radius * 2}px;
-            ${this.getPositionStyle()}
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.2s;
+            z-index: 1001;
+            opacity: 1;
             touch-action: none;
         `;
         
@@ -42,8 +90,13 @@ class VirtualJoystick {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: ${this.options.color};
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(80,80,80,0.9) 0%, 
+                rgba(40,40,40,0.95) 100%);
+            border: 4px solid rgba(60,60,60,0.8);
+            box-shadow: 
+                inset 0 -5px 15px rgba(0,0,0,0.5),
+                0 5px 20px rgba(0,0,0,0.4);
         `;
         
         // Stick
@@ -53,32 +106,21 @@ class VirtualJoystick {
             width: ${this.options.innerRadius * 2}px;
             height: ${this.options.innerRadius * 2}px;
             border-radius: 50%;
-            background: ${this.options.innerColor};
+            background: radial-gradient(circle at 35% 35%, 
+                rgba(220,220,220,1) 0%, 
+                rgba(160,160,160,1) 100%);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.5),
+                inset 0 2px 5px rgba(255,255,255,0.5);
+            border: 2px solid rgba(100,100,100,0.6);
         `;
         
         this.joystickContainer.appendChild(this.base);
         this.joystickContainer.appendChild(this.stick);
-        document.body.appendChild(this.joystickContainer);
-    }
-    
-    getPositionStyle() {
-        const margin = 30;
-        switch(this.options.position) {
-            case 'bottom-left':
-                return `bottom: ${margin}px; left: ${margin}px;`;
-            case 'bottom-right':
-                return `bottom: ${margin}px; right: ${margin}px;`;
-            case 'top-left':
-                return `top: ${margin}px; left: ${margin}px;`;
-            case 'top-right':
-                return `top: ${margin}px; right: ${margin}px;`;
-            default:
-                return `bottom: ${margin}px; left: ${margin}px;`;
-        }
+        panel.appendChild(this.joystickContainer);
     }
     
     bindEvents() {
@@ -168,7 +210,7 @@ class VirtualButton {
             label: options.label || '🔥',
             position: options.position || 'bottom-right',
             size: options.size || 70,
-            color: options.color || 'rgba(255, 100, 100, 0.7)',
+            color: options.color || 'rgba(200, 50, 50, 0.9)',
             ...options
         };
         
@@ -177,53 +219,56 @@ class VirtualButton {
     }
     
     createButton() {
+        const panel = createControlPanel();
+        
+        // 버튼 컨테이너 생성 (오른쪽 영역)
+        let buttonArea = panel.querySelector('.button-area');
+        if (!buttonArea) {
+            buttonArea = document.createElement('div');
+            buttonArea.className = 'button-area';
+            buttonArea.style.cssText = `
+                display: flex;
+                gap: 15px;
+                align-items: center;
+            `;
+            panel.appendChild(buttonArea);
+        }
+        
         this.button = document.createElement('div');
         this.button.style.cssText = `
-            position: fixed;
+            position: relative;
             width: ${this.options.size}px;
             height: ${this.options.size}px;
-            ${this.getPositionStyle()}
-            z-index: 1000;
             border-radius: 50%;
-            background: ${this.options.color};
+            background: radial-gradient(circle at 30% 30%, 
+                ${this.options.color.replace('0.9', '1')} 0%, 
+                ${this.options.color.replace('0.9', '0.8')} 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: ${this.options.size * 0.5}px;
+            font-size: ${this.options.size * 0.45}px;
             color: white;
             user-select: none;
             touch-action: none;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.6), 
+                inset 0 -4px 12px rgba(0,0,0,0.4),
+                inset 0 2px 8px rgba(255,255,255,0.2);
             transition: transform 0.1s, box-shadow 0.1s;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 4px solid rgba(0, 0, 0, 0.3);
         `;
         this.button.textContent = this.options.label;
-        document.body.appendChild(this.button);
-    }
-    
-    getPositionStyle() {
-        const margin = 30;
-        switch(this.options.position) {
-            case 'bottom-left':
-                return `bottom: ${margin}px; left: ${margin}px;`;
-            case 'bottom-right':
-                return `bottom: ${margin}px; right: ${margin}px;`;
-            case 'top-left':
-                return `top: ${margin}px; left: ${margin}px;`;
-            case 'top-right':
-                return `top: ${margin}px; right: ${margin}px;`;
-            case 'bottom-center':
-                return `bottom: ${margin}px; left: 50%; transform: translateX(-50%);`;
-            default:
-                return `bottom: ${margin}px; right: ${margin}px;`;
-        }
+        buttonArea.appendChild(this.button);
     }
     
     bindEvents() {
         const pressHandler = (e) => {
             e.preventDefault();
-            this.button.style.transform = 'scale(0.9)';
-            this.button.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.3)';
+            this.button.style.transform = 'scale(0.88) translateY(3px)';
+            this.button.style.boxShadow = `
+                0 2px 8px rgba(0, 0, 0, 0.4), 
+                inset 0 2px 10px rgba(0,0,0,0.6)
+            `;
             
             if (this.options.onPress) {
                 this.options.onPress();
@@ -232,8 +277,12 @@ class VirtualButton {
         
         const releaseHandler = (e) => {
             e.preventDefault();
-            this.button.style.transform = 'scale(1)';
-            this.button.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.3)';
+            this.button.style.transform = 'scale(1) translateY(0)';
+            this.button.style.boxShadow = `
+                0 6px 20px rgba(0, 0, 0, 0.6), 
+                inset 0 -4px 12px rgba(0,0,0,0.4),
+                inset 0 2px 8px rgba(255,255,255,0.2)
+            `;
             
             if (this.options.onRelease) {
                 this.options.onRelease();

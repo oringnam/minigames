@@ -182,11 +182,11 @@
         // 모바일 화면 크기 조정
         function resizeCanvas() {
             if (window.innerWidth < 768) {
-                const maxWidth = Math.min(window.innerWidth - 40, 400);
+                const maxWidth = Math.min(window.innerWidth - 60, 350);
                 canvas.width = maxWidth;
                 canvas.height = maxWidth * 2;
-                nextCanvas.width = 120;
-                nextCanvas.height = 120;
+                nextCanvas.width = 100;
+                nextCanvas.height = 100;
             }
         }
         resizeCanvas();

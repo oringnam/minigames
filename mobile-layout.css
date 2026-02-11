@@ -3,13 +3,15 @@
 /* 모바일 감지 */
 @media (max-width: 768px) {
     body {
-        padding: 10px !important;
+        padding: 5px !important;
+        padding-bottom: 200px !important; /* 컨트롤 패널 공간 확보 */
     }
     
     .container {
-        padding: 15px !important;
+        padding: 10px !important;
         max-width: 100% !important;
         width: 100% !important;
+        margin-bottom: 20px !important;
     }
     
     h1 {
@@ -37,7 +39,7 @@
     
     /* 캔버스 - 화면에 맞게 */
     canvas {
-        max-width: 100% !important;
+        max-width: calc(100vw - 20px) !important;
         height: auto !important;
         width: 100% !important;
     }
@@ -86,6 +88,21 @@
     
     .cell {
         font-size: 1.5em !important;
+    }
+    
+    /* Match3 특별 처리 */
+    .board {
+        max-width: calc(100vw - 40px) !important;
+        grid-template-columns: repeat(8, calc((100vw - 100px) / 8)) !important;
+        grid-template-rows: repeat(8, calc((100vw - 100px) / 8)) !important;
+        gap: 3px !important;
+        padding: 8px !important;
+    }
+    
+    .gem {
+        width: auto !important;
+        height: auto !important;
+        font-size: 1.8em !important;
     }
     
     /* 카드 게임들 */
