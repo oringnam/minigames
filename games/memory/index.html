@@ -162,7 +162,20 @@
             font-size: 2.5em;
             margin-bottom: 20px;
         }
+        
+        @media (max-width: 768px) {
+            .board {
+                grid-template-columns: repeat(4, calc((100vw - 100px) / 4));
+                grid-template-rows: repeat(4, calc((100vw - 100px) / 4));
+                gap: 8px;
+            }
+            
+            .card {
+                font-size: 2em;
+            }
+        }
     </style>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
@@ -197,6 +210,9 @@
     </div>
     
     <script>
+        // 사운드
+        const sounds = new GameSounds();
+        
         const emojis = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍒', '🍑', '🥝'];
         let cards = [...emojis, ...emojis];
         let flippedCards = [];
@@ -259,6 +275,7 @@
             
             card.classList.add('flipped');
             flippedCards.push(card);
+            sounds.flip();
             
             if (flippedCards.length === 2) {
                 moves++;
@@ -272,6 +289,8 @@
             const [card1, card2] = flippedCards;
             
             if (card1.dataset.emoji === card2.dataset.emoji) {
+                sounds.match();
+                vibrate(40);
                 setTimeout(() => {
                     card1.classList.add('matched');
                     card2.classList.add('matched');
@@ -289,6 +308,7 @@
                     }
                 }, 500);
             } else {
+                sounds.wrong();
                 setTimeout(() => {
                     card1.classList.remove('flipped');
                     card2.classList.remove('flipped');
@@ -307,6 +327,8 @@
         
         function gameWin() {
             clearInterval(timerInterval);
+            sounds.victory();
+            vibrate([100, 50, 100, 50, 200]);
             const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
             const minutes = Math.floor(elapsed / 60);
             const seconds = elapsed % 60;

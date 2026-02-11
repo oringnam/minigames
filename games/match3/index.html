@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매치 3</title>
     <link rel="stylesheet" href="../../mobile-layout.css">
+    <script src="../../game-sounds.js"></script>
     <style>
         * {
             margin: 0;
@@ -162,6 +163,9 @@
         const BOARD_SIZE = 8;
         const GEMS = ['🔴', '🟢', '🔵', '🟡', '🟣', '🟠'];
         
+        // 사운드
+        const sounds = new GameSounds();
+        
         let board = [];
         let selectedGem = null;
         let score = 0;
@@ -229,6 +233,7 @@
             if (selectedGem === null) {
                 selectedGem = {row, col};
                 highlightGem(row, col);
+                sounds.click();
             } else {
                 const {row: r1, col: c1} = selectedGem;
                 
@@ -312,6 +317,10 @@
             if (matches.length > 0) {
                 score += matches.length * 10;
                 document.getElementById('score').textContent = score;
+                
+                // 사운드 & 진동
+                sounds.match();
+                vibrate(matches.length > 5 ? 50 : 30);
                 
                 // 매치된 보석 표시
                 matches.forEach(({r, c}) => {

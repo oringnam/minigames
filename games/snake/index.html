@@ -134,8 +134,15 @@
             z-index: 999;
             display: none;
         }
+        
+        /* 파티클 */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+        }
     </style>
     <script src="../../mobile-controls.js"></script>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
@@ -161,15 +168,19 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // 모바일 화면 크기 조정
+        // 모바일 세로 화면 최적화
         if (window.innerWidth < 768) {
-            const size = Math.min(window.innerWidth - 60, 350);
-            canvas.width = size;
-            canvas.height = size;
+            const maxSize = Math.min(window.innerWidth - 40, 380);
+            canvas.width = maxSize;
+            canvas.height = maxSize;
         }
         
         const gridSize = 20;
         const tileCount = canvas.width / gridSize;
+        
+        // 사운드 & 이펙트
+        const sounds = new GameSounds();
+        const particles = new ParticleEffect(canvas, ctx);
         
         let snake = [{x: 10, y: 10}];
         let velocityX = 0;
@@ -180,6 +191,7 @@
         let highScore = localStorage.getItem('snakeHighScore') || 0;
         let gameLoop;
         let paused = false;
+        let foodParticles = [];
         
         document.getElementById('highScore').textContent = highScore;
         
@@ -210,12 +222,23 @@
                 if (head.x === foodX && head.y === foodY) {
                     score++;
                     document.getElementById('score').textContent = score;
+                    
+                    // 사운드 & 이펙트
+                    sounds.coin();
+                    vibrate(30);
+                    particles.emit(
+                        foodX * gridSize + gridSize/2,
+                        foodY * gridSize + gridSize/2,
+                        { count: 15, color: '#FFD700', speed: 4 }
+                    );
+                    
                     generateFood();
                     
                     if (score > highScore) {
                         highScore = score;
                         localStorage.setItem('snakeHighScore', highScore);
                         document.getElementById('highScore').textContent = highScore;
+                        sounds.powerup();
                     }
                 } else {
                     snake.pop();
@@ -225,6 +248,9 @@
             // 화면 그리기
             ctx.fillStyle = '#f8f8f8';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 파티클 업데이트
+            particles.update();
             
             // 뱀 그리기
             snake.forEach((segment, index) => {
@@ -265,6 +291,9 @@
         
         function gameOver() {
             clearInterval(gameLoop);
+            sounds.gameover();
+            vibrate([100, 50, 100]);
+            shakeScreen(canvas, 8, 300);
             document.getElementById('finalScore').textContent = score;
             document.getElementById('gameOver').style.display = 'block';
         }
