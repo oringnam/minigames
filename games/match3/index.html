@@ -6,6 +6,7 @@
     <title>매치 3</title>
     <link rel="stylesheet" href="../../mobile-layout.css">
     <script src="../../game-sounds.js"></script>
+    <script src="../../game-utils.js"></script>
     <style>
         * {
             margin: 0;
@@ -136,20 +137,7 @@
     <div class="container">
         <h1>💎 매치 3</h1>
         
-        <div class="game-info">
-            <div class="info-box">
-                <h3>점수</h3>
-                <p id="score">0</p>
-            </div>
-            <div class="info-box">
-                <h3>이동</h3>
-                <p id="moves">30</p>
-            </div>
-            <div class="info-box">
-                <h3>목표</h3>
-                <p id="target">1000</p>
-            </div>
-        </div>
+        <div id="scoreBoard"></div>
         
         <div class="board" id="board"></div>
         
@@ -171,6 +159,16 @@
         let score = 0;
         let moves = 30;
         let target = 1000;
+        
+        // 점수판 생성 (GameUI)
+        const scoreBoard = GameUI.createScoreBoard({
+            items: [
+                { id: 'score', label: '점수', value: 0 },
+                { id: 'moves', label: '이동', value: 30 },
+                { id: 'target', label: '목표', value: 1000 }
+            ],
+            containerId: 'scoreBoard'
+        });
         
         function createBoard() {
             board = [];
@@ -246,7 +244,7 @@
                     
                     if (findMatches().length > 0) {
                         moves--;
-                        document.getElementById('moves').textContent = moves;
+                        scoreBoard.update('moves', moves);
                         processMatches();
                         
                         if (moves === 0) {
@@ -322,7 +320,7 @@
             if (matches.length > 0) {
                 const points = matches.length * 10;
                 score += points;
-                document.getElementById('score').textContent = score;
+                scoreBoard.update('score', score);
                 
                 // 🎵 사운드 & 진동 (큰 매치는 파워업 사운드)
                 if (matches.length >= 5) {
@@ -398,45 +396,33 @@
                 vibrate(200);
             }
             
-            const message = won 
-                ? `🎉 축하합니다! 목표 달성!\n\n점수: ${score}\n이동: ${30 - moves}번 사용`
-                : `게임 오버!\n\n점수: ${score} / 목표: ${target}`;
-            
+            // 모달 표시 (GameUtils)
             setTimeout(() => {
-                if (confirm(message + '\n\n📋 점수를 복사하시겠습니까?')) {
-                    shareScore(won);
-                }
+                GameUtils.createModal({
+                    title: won ? '🎉 목표 달성!' : '💀 게임 오버!',
+                    message: won ? '축하합니다!' : '다시 도전하세요!',
+                    stats: [
+                        { label: '최종 점수', value: score },
+                        { label: '목표', value: target },
+                        { label: '사용 이동', value: 30 - moves }
+                    ],
+                    buttons: [
+                        {
+                            text: '📱 카톡 공유',
+                            action: () => {
+                                const emoji = won ? '🎉' : '💎';
+                                const status = won ? '목표 달성!' : '도전!';
+                                const text = `${emoji} 매치3 ${status}\n\n점수: ${score}\n목표: ${target}\n\nhttps://oringnam.github.io/minigames/`;
+                                GameUtils.copyToClipboard(text);
+                            }
+                        },
+                        {
+                            text: '다시 하기',
+                            action: initGame
+                        }
+                    ]
+                });
             }, 500);
-        }
-        
-        function shareScore(won) {
-            const emoji = won ? '🎉' : '💎';
-            const status = won ? '목표 달성!' : '도전!';
-            const text = `${emoji} 매치3 게임 ${status}\n\n🎯 점수: ${score}점\n🎲 목표: ${target}점\n\n🎮 미니게임 아케이드\nhttps://oringnam.github.io/minigames/`;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('📋 클립보드에 복사되었습니다!');
-                }).catch(() => fallbackCopy(text));
-            } else {
-                fallbackCopy(text);
-            }
-        }
-        
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                alert('📋 클립보드에 복사되었습니다!');
-            } catch (err) {
-                alert('복사 실패:\n\n' + text);
-            }
-            document.body.removeChild(textarea);
         }
         
         function initGame() {
@@ -444,8 +430,8 @@
             moves = 30;
             selectedGem = null;
             
-            document.getElementById('score').textContent = score;
-            document.getElementById('moves').textContent = moves;
+            scoreBoard.update('score', 0);
+            scoreBoard.update('moves', 30);
             
             // 🎵 게임 시작 사운드
             sounds.play('click');
