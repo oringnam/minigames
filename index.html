@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미니게임 아케이드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .game-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .game-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .game-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .game-card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .game-card .tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            color: white;
+            text-align: center;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 미니게임 아케이드</h1>
+        <p>다양한 장르의 미니게임을 즐겨보세요!</p>
+    </div>
+    
+    <div class="games-grid">
+        <a href="games/snake/index.html" class="game-card">
+            <div class="icon">🐍</div>
+            <h3>스네이크</h3>
+            <p>클래식 스네이크 게임. 먹이를 먹고 길어지세요!</p>
+            <div class="tags">
+                <span class="tag">아케이드</span>
+                <span class="tag">클래식</span>
+            </div>
+        </a>
+        
+        <a href="games/flappy/index.html" class="game-card">
+            <div class="icon">🐦</div>
+            <h3>플래피 버드</h3>
+            <p>장애물을 피해 날아가세요. 타이밍이 전부!</p>
+            <div class="tags">
+                <span class="tag">액션</span>
+                <span class="tag">타이밍</span>
+            </div>
+        </a>
+        
+        <a href="games/tetris/index.html" class="game-card">
+            <div class="icon">🟦</div>
+            <h3>테트리스</h3>
+            <p>떨어지는 블록을 쌓아 라인을 완성하세요.</p>
+            <div class="tags">
+                <span class="tag">퍼즐</span>
+                <span class="tag">전략</span>
+            </div>
+        </a>
+        
+        <a href="games/2048/index.html" class="game-card">
+            <div class="icon">🔢</div>
+            <h3>2048</h3>
+            <p>같은 숫자를 합쳐 2048을 만드세요!</p>
+            <div class="tags">
+                <span class="tag">퍼즐</span>
+                <span class="tag">전략</span>
+            </div>
+        </a>
+        
+        <a href="games/breakout/index.html" class="game-card">
+            <div class="icon">🎯</div>
+            <h3>브레이크아웃</h3>
+            <p>공을 튕겨 모든 벽돌을 부수세요.</p>
+            <div class="tags">
+                <span class="tag">아케이드</span>
+                <span class="tag">액션</span>
+            </div>
+        </a>
+        
+        <a href="games/memory/index.html" class="game-card">
+            <div class="icon">🧠</div>
+            <h3>메모리 게임</h3>
+            <p>같은 카드를 찾아 모두 뒤집으세요.</p>
+            <div class="tags">
+                <span class="tag">퍼즐</span>
+                <span class="tag">기억력</span>
+            </div>
+        </a>
+        
+        <a href="games/runner/index.html" class="game-card">
+            <div class="icon">🏃</div>
+            <h3>엔드리스 러너</h3>
+            <p>장애물을 피해 끝없이 달리세요!</p>
+            <div class="tags">
+                <span class="tag">액션</span>
+                <span class="tag">스피드</span>
+            </div>
+        </a>
+        
+        <a href="games/pong/index.html" class="game-card">
+            <div class="icon">🏓</div>
+            <h3>퐁</h3>
+            <p>최초의 비디오 게임. AI와 대결하세요!</p>
+            <div class="tags">
+                <span class="tag">클래식</span>
+                <span class="tag">스포츠</span>
+            </div>
+        </a>
+    </div>
+    
+    <div class="footer">
+        <p>Made with ❤️ | 계속 업데이트 중...</p>
+    </div>
+</body>
+</html>

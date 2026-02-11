@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>플래피 버드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #52c234 0%, #2ecc71 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #27ae60;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
+        .score, .high-score {
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        
+        .score span, .high-score span {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        canvas {
+            border: 3px solid #27ae60;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #87ceeb 0%, #87ceeb 70%, #8bc34a 70%, #8bc34a 100%);
+            cursor: pointer;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .back-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #2ecc71;
+        }
+        
+        .start-screen, .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(39, 174, 96, 0.95);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .start-screen h2, .game-over h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .start-screen button, .game-over button {
+            padding: 15px 40px;
+            background: white;
+            color: #27ae60;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .start-screen button:hover, .game-over button:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐦 플래피 버드</h1>
+        <div class="game-info">
+            <div class="score">점수: <span id="score">0</span></div>
+            <div class="high-score">최고점수: <span id="highScore">0</span></div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <div class="controls">
+            클릭, 스페이스바 또는 화살표 위로 날아오르기
+        </div>
+        <a href="../../index.html" class="back-btn">← 메인으로</a>
+    </div>
+    
+    <div class="start-screen" id="startScreen">
+        <h2>플래피 버드</h2>
+        <p>장애물을 피해 날아가세요!</p>
+        <button onclick="startGame()">게임 시작</button>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2>게임 오버!</h2>
+        <p>점수: <span id="finalScore">0</span></p>
+        <button onclick="startGame()">다시 시작</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let bird = {
+            x: 50,
+            y: canvas.height / 2,
+            width: 34,
+            height: 24,
+            gravity: 0.6,
+            velocity: 0,
+            jump: -10
+        };
+        
+        let pipes = [];
+        let frameCount = 0;
+        let score = 0;
+        let highScore = localStorage.getItem('flappyHighScore') || 0;
+        let gameRunning = false;
+        let gameLoop;
+        
+        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('startScreen').style.display = 'block';
+        
+        function drawBird() {
+            ctx.fillStyle = '#f39c12';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width/2, bird.y + bird.height/2, bird.width/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 눈
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width/2 + 5, bird.y + bird.height/2 - 3, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(bird.x + bird.width/2 + 7, bird.y + bird.height/2 - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 부리
+            ctx.fillStyle = '#e67e22';
+            ctx.beginPath();
+            ctx.moveTo(bird.x + bird.width, bird.y + bird.height/2);
+            ctx.lineTo(bird.x + bird.width + 10, bird.y + bird.height/2 - 5);
+            ctx.lineTo(bird.x + bird.width + 10, bird.y + bird.height/2 + 5);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawPipes() {
+            pipes.forEach(pipe => {
+                // 위 파이프
+                ctx.fillStyle = '#2ecc71';
+                ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+                ctx.strokeStyle = '#27ae60';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(pipe.x, 0, pipe.width, pipe.top);
+                
+                // 아래 파이프
+                ctx.fillRect(pipe.x, pipe.top + pipe.gap, pipe.width, canvas.height - pipe.top - pipe.gap);
+                ctx.strokeRect(pipe.x, pipe.top + pipe.gap, pipe.width, canvas.height - pipe.top - pipe.gap);
+                
+                // 파이프 끝 장식
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(pipe.x - 5, pipe.top - 20, pipe.width + 10, 20);
+                ctx.fillRect(pipe.x - 5, pipe.top + pipe.gap, pipe.width + 10, 20);
+            });
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            frameCount++;
+            
+            // 새 추가
+            if (frameCount % 90 === 0) {
+                const minTop = 50;
+                const maxTop = canvas.height - 200;
+                pipes.push({
+                    x: canvas.width,
+                    top: Math.random() * (maxTop - minTop) + minTop,
+                    width: 60,
+                    gap: 150,
+                    passed: false
+                });
+            }
+            
+            // 새 물리
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            
+            // 바닥/천장 충돌
+            if (bird.y + bird.height > canvas.height - 50 || bird.y < 0) {
+                endGame();
+                return;
+            }
+            
+            // 파이프 이동 및 충돌 검사
+            pipes.forEach((pipe, index) => {
+                pipe.x -= 3;
+                
+                // 파이프 통과 점수
+                if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+                    pipe.passed = true;
+                    score++;
+                    document.getElementById('score').textContent = score;
+                    
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('flappyHighScore', highScore);
+                        document.getElementById('highScore').textContent = highScore;
+                    }
+                }
+                
+                // 충돌 검사
+                if (bird.x < pipe.x + pipe.width &&
+                    bird.x + bird.width > pipe.x &&
+                    (bird.y < pipe.top || bird.y + bird.height > pipe.top + pipe.gap)) {
+                    endGame();
+                }
+                
+                // 화면 밖 파이프 제거
+                if (pipe.x + pipe.width < 0) {
+                    pipes.splice(index, 1);
+                }
+            });
+            
+            draw();
+        }
+        
+        function draw() {
+            // 배경 (그라디언트는 CSS에서)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 구름
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            ctx.arc(100, 80, 30, 0, Math.PI * 2);
+            ctx.arc(130, 75, 40, 0, Math.PI * 2);
+            ctx.arc(160, 80, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(280, 120, 25, 0, Math.PI * 2);
+            ctx.arc(305, 118, 35, 0, Math.PI * 2);
+            ctx.arc(330, 120, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 땅
+            ctx.fillStyle = '#8bc34a';
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+            ctx.fillStyle = '#7cb342';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.fillRect(i, canvas.height - 50, 10, 10);
+            }
+            
+            drawPipes();
+            drawBird();
+        }
+        
+        function startGame() {
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            pipes = [];
+            frameCount = 0;
+            score = 0;
+            gameRunning = true;
+            document.getElementById('score').textContent = score;
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(update, 1000/60);
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        function jump() {
+            if (gameRunning) {
+                bird.velocity = bird.jump;
+            }
+        }
+        
+        canvas.addEventListener('click', jump);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                jump();
+            }
+        });
+        
+        // 초기 화면
+        draw();
+    </script>
+</body>
+</html>
