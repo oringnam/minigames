@@ -42,7 +42,7 @@
             width: 100%;
         }
         
-        .game-info {
+        .memory-stats {
             display: flex;
             flex-direction: row;
             flex-wrap: nowrap;
@@ -54,7 +54,7 @@
             max-width: 500px;
         }
         
-        .info-box {
+        .stat-box {
             background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
             padding: 10px 15px;
             border-radius: 15px;
@@ -63,7 +63,7 @@
             box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
         }
         
-        .info-box h3 {
+        .stat-box h3 {
             font-size: 0.7em;
             color: rgba(255,255,255,0.8);
             margin-bottom: 3px;
@@ -71,7 +71,7 @@
             letter-spacing: 0.5px;
         }
         
-        .info-box p {
+        .stat-box p {
             font-size: 1.5em;
             font-weight: bold;
             color: white;
@@ -82,8 +82,10 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             max-width: 500px;
+            width: 100%;
             margin: 0 auto 30px;
             perspective: 1000px;
+            place-content: center;
         }
         
         .card {
@@ -118,26 +120,29 @@
             justify-content: center;
             border-radius: 15px;
             backface-visibility: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             font-size: 3em;
+            border: 3px solid rgba(255,255,255,0.2);
         }
         
         .card .back {
-            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-            color: #e74c3c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             font-weight: bold;
             font-size: 3.5em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
         .card .front {
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             transform: rotateY(180deg);
-            box-shadow: 0 5px 20px rgba(108, 92, 231, 0.4);
+            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.4);
         }
         
         .card.matched .front {
-            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
             animation: pulse 0.8s ease-in-out;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.6);
         }
         
         @keyframes match {
@@ -208,41 +213,45 @@
                 margin-bottom: 15px;
             }
             
-            .game-info {
+            .memory-stats {
                 flex-direction: row;
                 flex-wrap: nowrap;
                 gap: 6px;
                 margin-bottom: 15px;
             }
             
-            .info-box {
+            .stat-box {
                 padding: 8px 10px;
                 min-width: 0;
                 flex: 1 1 0;
             }
             
-            .info-box h3 {
+            .stat-box h3 {
                 font-size: 0.65em;
             }
             
-            .info-box p {
+            .stat-box p {
                 font-size: 1.2em;
             }
             
             .memory-board {
-                grid-template-columns: repeat(4, calc((100vw - 60px) / 4));
-                gap: 6px;
-                max-width: 100%;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+                max-width: min(90vw, 400px);
+                width: 100%;
+                padding: 0 10px;
+                place-content: center;
             }
             
             .card .back,
             .card .front {
-                font-size: 2em;
-                border-radius: 10px;
+                font-size: 2.2em;
+                border-radius: 12px;
+                border-width: 2px;
             }
             
             .card .back {
-                font-size: 2.5em;
+                font-size: 2.8em;
             }
             
             .btn-group {
@@ -262,16 +271,16 @@
 <body>
     <div class="container">
         <h1>🧠 메모리 게임</h1>
-        <div class="game-info">
-            <div class="info-box">
+        <div class="memory-stats">
+            <div class="stat-box">
                 <h3>시도</h3>
                 <p id="moves">0</p>
             </div>
-            <div class="info-box">
+            <div class="stat-box">
                 <h3>매치</h3>
                 <p id="matches">0 / 8</p>
             </div>
-            <div class="info-box">
+            <div class="stat-box">
                 <h3>시간</h3>
                 <p id="time">0:00</p>
             </div>
