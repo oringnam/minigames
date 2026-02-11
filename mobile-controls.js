@@ -9,39 +9,19 @@ function createControlPanel() {
     panel.id = 'mobile-control-panel';
     panel.style.cssText = `
         position: fixed;
-        bottom: 20px;
+        bottom: 10px;
         left: 0;
         right: 0;
-        height: 180px;
-        background: linear-gradient(180deg, 
-            rgba(30,30,35,0.98) 0%, 
-            rgba(15,15,20,0.99) 100%);
-        border-top: 4px solid #444;
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+        height: 120px;
+        background: transparent;
         z-index: 999;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 0 30px;
+        justify-content: center;
+        padding: 0 20px;
         touch-action: none;
+        pointer-events: none;
     `;
-    
-    // 타이틀 추가
-    const title = document.createElement('div');
-    title.style.cssText = `
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: rgba(255,255,255,0.4);
-        font-size: 0.75em;
-        font-weight: bold;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-    `;
-    title.textContent = '🕹️ Controls';
-    panel.appendChild(title);
     
     document.body.appendChild(panel);
     return panel;
@@ -82,8 +62,9 @@ class VirtualJoystick {
             width: ${this.options.radius * 2}px;
             height: ${this.options.radius * 2}px;
             z-index: 1001;
-            opacity: 1;
+            opacity: 0.9;
             touch-action: none;
+            pointer-events: auto;
         `;
         
         // Base
