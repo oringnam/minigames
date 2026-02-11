@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스페이스 슈터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #6366f1;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        
+        .info-box {
+            background: #f0f0f0;
+            padding: 10px 25px;
+            border-radius: 10px;
+        }
+        
+        .info-box h3 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-box p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #6366f1;
+        }
+        
+        canvas {
+            border: 3px solid #6366f1;
+            border-radius: 10px;
+            background: #000;
+            cursor: crosshair;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #4f46e5;
+        }
+        
+        .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(99, 102, 241, 0.95);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .game-over h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .game-over button {
+            padding: 15px 40px;
+            background: white;
+            color: #6366f1;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 스페이스 슈터</h1>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <h3>점수</h3>
+                <p id="score">0</p>
+            </div>
+            <div class="info-box">
+                <h3>생명</h3>
+                <p id="lives">3</p>
+            </div>
+            <div class="info-box">
+                <h3>레벨</h3>
+                <p id="level">1</p>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas" width="500" height="600"></canvas>
+        
+        <div class="controls">
+            마우스로 조준 및 이동 | 클릭 또는 스페이스바로 발사
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="startGame()">시작</button>
+            <a href="../../index.html" class="btn">← 메인으로</a>
+        </div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2>게임 오버!</h2>
+        <p>최종 점수: <span id="finalScore">0</span></p>
+        <button onclick="startGame()">다시 시작</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height - 60,
+            width: 40,
+            height: 40,
+            speed: 5
+        };
+        
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let gameRunning = false;
+        let mouseX = canvas.width / 2;
+        let frameCount = 0;
+        
+        function drawPlayer() {
+            // 우주선
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y - 15);
+            ctx.lineTo(player.x - 20, player.y + 15);
+            ctx.lineTo(player.x, player.y + 5);
+            ctx.lineTo(player.x + 20, player.y + 15);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 엔진 불꽃
+            if (frameCount % 6 < 3) {
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.moveTo(player.x - 10, player.y + 15);
+                ctx.lineTo(player.x, player.y + 25);
+                ctx.lineTo(player.x + 10, player.y + 15);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+        
+        function drawBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                
+                ctx.fillStyle = '#fbbf24';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#fbbf24';
+                ctx.fillRect(bullet.x - 2, bullet.y, 4, 15);
+                ctx.shadowBlur = 0;
+                
+                if (bullet.y < 0) bullets.splice(index, 1);
+            });
+        }
+        
+        function drawEnemies() {
+            enemies.forEach((enemy, index) => {
+                enemy.y += enemy.speed;
+                
+                // 적 우주선
+                ctx.fillStyle = enemy.color;
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.beginPath();
+                ctx.arc(enemy.x - 5, enemy.y - 5, enemy.size / 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                if (enemy.y > canvas.height) {
+                    enemies.splice(index, 1);
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    if (lives <= 0) gameOver();
+                }
+            });
+        }
+        
+        function drawParticles() {
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                
+                ctx.fillStyle = `rgba(${p.color}, ${p.life / 30})`;
+                ctx.fillRect(p.x, p.y, 3, 3);
+                
+                if (p.life <= 0) particles.splice(index, 1);
+            });
+        }
+        
+        function createExplosion(x, y) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x,
+                    y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 30,
+                    color: '255, 150, 0'
+                });
+            }
+        }
+        
+        function spawnEnemy() {
+            enemies.push({
+                x: Math.random() * (canvas.width - 40) + 20,
+                y: -20,
+                size: 15 + Math.random() * 10,
+                speed: 1 + level * 0.3,
+                color: ['#ef4444', '#f59e0b', '#a855f7'][Math.floor(Math.random() * 3)]
+            });
+        }
+        
+        function checkCollisions() {
+            bullets.forEach((bullet, bIndex) => {
+                enemies.forEach((enemy, eIndex) => {
+                    const dx = bullet.x - enemy.x;
+                    const dy = bullet.y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < enemy.size + 5) {
+                        createExplosion(enemy.x, enemy.y);
+                        enemies.splice(eIndex, 1);
+                        bullets.splice(bIndex, 1);
+                        score += 10;
+                        document.getElementById('score').textContent = score;
+                        
+                        if (score % 200 === 0) {
+                            level++;
+                            document.getElementById('level').textContent = level;
+                        }
+                    }
+                });
+            });
+            
+            enemies.forEach(enemy => {
+                const dx = player.x - enemy.x;
+                const dy = player.y - enemy.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < enemy.size + 20) {
+                    createExplosion(enemy.x, enemy.y);
+                    enemies.splice(enemies.indexOf(enemy), 1);
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    if (lives <= 0) gameOver();
+                }
+            });
+        }
+        
+        function shoot() {
+            if (!gameRunning) return;
+            bullets.push({
+                x: player.x,
+                y: player.y - 20,
+                speed: 8
+            });
+        }
+        
+        function update() {
+            if (!gameRunning) return;
+            
+            frameCount++;
+            
+            // 플레이어 이동
+            player.x += (mouseX - player.x) * 0.1;
+            player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+            
+            // 적 생성
+            if (frameCount % Math.max(30 - level * 2, 15) === 0) {
+                spawnEnemy();
+            }
+            
+            checkCollisions();
+            draw();
+            requestAnimationFrame(update);
+        }
+        
+        function draw() {
+            // 배경 (우주)
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 별
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 67 + frameCount) % canvas.width;
+                const y = (i * 103 + frameCount * 2) % canvas.height;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            
+            drawParticles();
+            drawEnemies();
+            drawBullets();
+            drawPlayer();
+        }
+        
+        function startGame() {
+            player.x = canvas.width / 2;
+            bullets = [];
+            enemies = [];
+            particles = [];
+            score = 0;
+            lives = 3;
+            level = 1;
+            frameCount = 0;
+            gameRunning = true;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('level').textContent = level;
+            document.getElementById('gameOver').style.display = 'none';
+            
+            update();
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+        });
+        
+        canvas.addEventListener('click', shoot);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                shoot();
+            }
+        });
+        
+        // 초기 화면
+        draw();
+    </script>
+</body>
+</html>

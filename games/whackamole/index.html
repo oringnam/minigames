@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>두더지 잡기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #27ae60;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+        
+        .info-box {
+            background: #f8f8f8;
+            padding: 15px 30px;
+            border-radius: 10px;
+        }
+        
+        .info-box h3 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-box p {
+            font-size: 2em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 150px);
+            grid-template-rows: repeat(3, 150px);
+            gap: 20px;
+            margin: 0 auto 30px;
+            width: fit-content;
+        }
+        
+        .hole {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(180deg, #8b4513 0%, #654321 100%);
+            border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .mole {
+            position: absolute;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            font-size: 4em;
+            transition: bottom 0.3s;
+        }
+        
+        .mole.up {
+            bottom: 20px;
+        }
+        
+        .mole.hit {
+            animation: bonk 0.3s;
+        }
+        
+        @keyframes bonk {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.2) rotate(10deg); }
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔨 두더지 잡기</h1>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <h3>점수</h3>
+                <p id="score">0</p>
+            </div>
+            <div class="info-box">
+                <h3>시간</h3>
+                <p id="time">30</p>
+            </div>
+            <div class="info-box">
+                <h3>최고점수</h3>
+                <p id="highScore">0</p>
+            </div>
+        </div>
+        
+        <div class="game-board" id="board"></div>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="startGame()">시작</button>
+            <a href="../../index.html" class="btn">← 메인으로</a>
+        </div>
+    </div>
+    
+    <script>
+        const board = document.getElementById('board');
+        const holes = [];
+        let score = 0;
+        let timeLeft = 30;
+        let highScore = localStorage.getItem('whackHighScore') || 0;
+        let gameRunning = false;
+        let moleTimer = null;
+        let countdownTimer = null;
+        
+        document.getElementById('highScore').textContent = highScore;
+        
+        // 홀 생성
+        for (let i = 0; i < 9; i++) {
+            const hole = document.createElement('div');
+            hole.className = 'hole';
+            hole.innerHTML = '<div class="mole">🐹</div>';
+            hole.addEventListener('click', () => whackMole(i));
+            board.appendChild(hole);
+            holes.push(hole);
+        }
+        
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            gameRunning = true;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('time').textContent = timeLeft;
+            
+            // 모든 두더지 숨기기
+            holes.forEach(hole => {
+                hole.querySelector('.mole').classList.remove('up', 'hit');
+            });
+            
+            if (moleTimer) clearInterval(moleTimer);
+            if (countdownTimer) clearInterval(countdownTimer);
+            
+            // 두더지 랜덤 출현
+            moleTimer = setInterval(popUpMole, 800);
+            
+            // 카운트다운
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        function popUpMole() {
+            if (!gameRunning) return;
+            
+            // 랜덤 홀 선택
+            const randomHole = Math.floor(Math.random() * 9);
+            const mole = holes[randomHole].querySelector('.mole');
+            
+            // 이미 올라와 있으면 스킵
+            if (mole.classList.contains('up')) return;
+            
+            mole.classList.add('up');
+            
+            // 랜덤 시간 후 숨기기
+            const hideTime = 600 + Math.random() * 800;
+            setTimeout(() => {
+                mole.classList.remove('up');
+            }, hideTime);
+        }
+        
+        function whackMole(index) {
+            if (!gameRunning) return;
+            
+            const mole = holes[index].querySelector('.mole');
+            
+            if (mole.classList.contains('up') && !mole.classList.contains('hit')) {
+                mole.classList.add('hit');
+                mole.classList.remove('up');
+                score++;
+                document.getElementById('score').textContent = score;
+                
+                setTimeout(() => {
+                    mole.classList.remove('hit');
+                }, 300);
+            }
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            clearInterval(moleTimer);
+            clearInterval(countdownTimer);
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('whackHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+                alert(`🎉 새 기록! ${score}점!`);
+            } else {
+                alert(`게임 오버! 점수: ${score}`);
+            }
+            
+            // 모든 두더지 숨기기
+            holes.forEach(hole => {
+                hole.querySelector('.mole').classList.remove('up', 'hit');
+            });
+        }
+    </script>
+</body>
+</html>
