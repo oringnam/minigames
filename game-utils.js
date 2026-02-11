@@ -186,6 +186,92 @@ class GameUtils {
     static randomElement(array) {
         return array[Math.floor(Math.random() * array.length)];
     }
+    
+    /**
+     * 상위 점수 불러오기 (배열)
+     */
+    static loadTopScores(gameId, count = 10) {
+        try {
+            const scores = localStorage.getItem(`${gameId}_topScores`);
+            return scores ? JSON.parse(scores) : [];
+        } catch (e) {
+            console.error('Failed to load top scores:', e);
+            return [];
+        }
+    }
+    
+    /**
+     * 상위 점수 저장 (배열)
+     */
+    static saveTopScores(gameId, scores) {
+        try {
+            localStorage.setItem(`${gameId}_topScores`, JSON.stringify(scores));
+        } catch (e) {
+            console.error('Failed to save top scores:', e);
+        }
+    }
+    
+    /**
+     * 캐시 클리어 + 리로드
+     */
+    static async clearCache() {
+        try {
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+            }
+            
+            alert('✅ 캐시가 삭제되었습니다.');
+            const url = new URL(window.location.href);
+            url.searchParams.set('v', Date.now());
+            window.location.href = url.toString();
+        } catch (error) {
+            console.error('캐시 클리어 실패:', error);
+            alert('❌ 캐시 클리어 중 오류가 발생했습니다.');
+        }
+    }
+    
+    /**
+     * 카드 필터링 (검색어 또는 태그)
+     */
+    static filterCards(options = {}) {
+        const {
+            cards,           // NodeList or Array of card elements
+            searchTerm = '', // 검색어
+            tag = null,      // 필터링할 태그 (null이면 검색어만 사용)
+            emptyStateId = 'emptyState' // 빈 상태 요소 ID
+        } = options;
+        
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+            let visible = true;
+            
+            // 태그 필터링
+            if (tag && tag !== 'all') {
+                const cardTags = card.getAttribute('data-tags') || '';
+                visible = cardTags.includes(tag);
+            }
+            
+            // 검색어 필터링
+            if (visible && searchTerm) {
+                const name = card.querySelector('.game-name')?.textContent.toLowerCase() || '';
+                const desc = card.querySelector('.game-desc')?.textContent.toLowerCase() || '';
+                visible = name.includes(searchTerm.toLowerCase()) || desc.includes(searchTerm.toLowerCase());
+            }
+            
+            card.style.display = visible ? 'flex' : 'none';
+            if (visible) visibleCount++;
+        });
+        
+        // 빈 상태 표시/숨김
+        const emptyState = document.getElementById(emptyStateId);
+        if (emptyState) {
+            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+        
+        return visibleCount;
+    }
 }
 
 /**
@@ -263,6 +349,76 @@ class GameUI {
         }
         
         return button;
+    }
+    
+    /**
+     * 검색창 생성
+     * @param {Object} options
+     * @param {Function} options.onSearch - (searchTerm) => {} 검색 콜백
+     * @param {string} options.placeholder - 플레이스홀더
+     * @param {string} options.containerId - 검색창을 넣을 컨테이너 ID
+     * @returns {HTMLElement}
+     */
+    static createSearchBar(options = {}) {
+        const {
+            onSearch,
+            placeholder = '🔍 검색...',
+            containerId = null
+        } = options;
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'search-input';
+        input.placeholder = placeholder;
+        input.oninput = (e) => {
+            if (onSearch) onSearch(e.target.value);
+        };
+        
+        if (containerId) {
+            document.getElementById(containerId).appendChild(input);
+        }
+        
+        return input;
+    }
+    
+    /**
+     * 카테고리 칩 생성
+     * @param {Object} options
+     * @param {Array} options.categories - [{ id: 'all', label: '전체', emoji: '' }, ...]
+     * @param {Function} options.onSelect - (category) => {} 선택 콜백
+     * @param {string} options.containerId - 칩을 넣을 컨테이너 ID
+     * @returns {HTMLElement}
+     */
+    static createCategoryChips(options = {}) {
+        const {
+            categories = [],
+            onSelect,
+            containerId = null
+        } = options;
+        
+        const container = document.createElement('div');
+        container.className = 'categories';
+        
+        categories.forEach((cat, index) => {
+            const chip = document.createElement('button');
+            chip.className = 'category-chip' + (index === 0 ? ' active' : '');
+            chip.textContent = `${cat.emoji || ''} ${cat.label}`.trim();
+            chip.onclick = () => {
+                // 활성화 상태 변경
+                container.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                
+                // 콜백 호출
+                if (onSelect) onSelect(cat.id);
+            };
+            container.appendChild(chip);
+        });
+        
+        if (containerId) {
+            document.getElementById(containerId).appendChild(container);
+        }
+        
+        return container;
     }
 }
 
@@ -496,6 +652,51 @@ if (typeof document !== 'undefined') {
         .share-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+        }
+        
+        /* 검색창 */
+        .search-input {
+            flex: 1;
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.95em;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* 카테고리 칩 */
+        .categories {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-chip {
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .category-chip.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
         }
         
         /* 모바일 최적화 */

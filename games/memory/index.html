@@ -313,14 +313,6 @@
             3: { cols: 4, rows: 6, pairs: 12 }    // 4x6, 24카드 (12쌍)
         };
         
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
         function startGame() {
             stage = 1;
             lives = 5;
@@ -335,8 +327,8 @@
             const pairCount = config.pairs;
             
             // 카드 생성
-            const selectedEmojis = shuffle([...emojis]).slice(0, pairCount);
-            cards = shuffle([...selectedEmojis, ...selectedEmojis]);
+            const selectedEmojis = GameUtils.shuffle([...emojis]).slice(0, pairCount);
+            cards = GameUtils.shuffle([...selectedEmojis, ...selectedEmojis]);
             
             // 빈 칸 추가 (홀수개일 때)
             const totalCells = cols * rows;
@@ -427,7 +419,7 @@
             const cardElements = Array.from(board.querySelectorAll('.card'));
             
             // 랜덤하게 카드 선택
-            const shuffled = shuffle([...cardElements]).slice(0, count);
+            const shuffled = GameUtils.shuffle([...cardElements]).slice(0, count);
             
             shuffled.forEach(card => {
                 card.classList.add('shuffling');
@@ -440,7 +432,7 @@
                     emoji: c.dataset.emoji
                 }));
                 
-                shuffle(positions);
+                GameUtils.shuffle(positions);
                 
                 shuffled.forEach((card, i) => {
                     card.dataset.index = positions[i].index;

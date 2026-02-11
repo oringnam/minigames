@@ -147,7 +147,7 @@
             
             <div class="stat-card">
                 <h3>🎮 총 게임 수</h3>
-                <div class="value" id="totalGames">8</div>
+                <div class="value" id="totalGames">4</div>
                 <div class="label">개</div>
             </div>
             
@@ -177,12 +177,13 @@
         <button class="clear-btn" onclick="clearAllRecords()">모든 기록 초기화</button>
     </div>
     
+    <script src="game-utils.js"></script>
     <script>
         const records = [
-            { game: '🐍 스네이크', key: 'snakeHighScore', unit: '점' },
-            { game: '🐦 플래피 버드', key: 'flappyHighScore', unit: '점' },
-            { game: '🔢 2048', key: '2048BestScore', unit: '점' },
-            { game: '🏃 엔드리스 러너', key: 'runnerHighScore', unit: 'm' }
+            { game: '🐍 스네이크', gameId: 'snake', key: 'highScore', unit: '점' },
+            { game: '🧠 메모리 게임', gameId: 'memory', key: 'bestStage', unit: '단계' },
+            { game: '💎 매치 3', gameId: 'match3', key: 'highScore', unit: '점' },
+            { game: '🎵 사이먼 세즈', gameId: 'simon', key: 'highScore', unit: '점' }
         ];
         
         function loadStats() {
@@ -193,7 +194,7 @@
             let bestGameName = '-';
             
             records.forEach(record => {
-                const value = localStorage.getItem(record.key) || 0;
+                const value = GameUtils.getScore(record.gameId, record.key, 0);
                 const row = tbody.insertRow();
                 row.insertCell(0).textContent = record.game;
                 row.insertCell(1).textContent = value;
@@ -215,7 +216,7 @@
         function clearAllRecords() {
             if (confirm('정말로 모든 기록을 초기화하시겠습니까?')) {
                 records.forEach(record => {
-                    localStorage.removeItem(record.key);
+                    GameUtils.clearScore(record.gameId, record.key);
                 });
                 alert('모든 기록이 초기화되었습니다.');
                 loadStats();

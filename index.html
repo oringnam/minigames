@@ -275,23 +275,14 @@
             <div class="header-subtitle">
                 총 4개 게임 • 📱 모바일 지원
                 <a href="stats.html" class="icon-btn" title="통계">📊</a>
-                <button class="icon-btn" onclick="clearCache()" title="캐시 새로고침">🔄</button>
+                <button class="icon-btn" onclick="GameUtils.clearCache()" title="캐시 새로고침">🔄</button>
             </div>
             
             <!-- 검색 -->
-            <div class="search-actions">
-                <input type="text" class="search-input" id="searchInput" placeholder="🔍 게임 검색..." oninput="filterGames()">
-            </div>
+            <div class="search-actions" id="searchContainer"></div>
             
             <!-- 카테고리 칩 (가로 스크롤) -->
-            <div class="categories">
-                <button class="category-chip active" onclick="filterByTag('all', this)">전체</button>
-                <button class="category-chip" onclick="filterByTag('아케이드', this)">🕹️ 아케이드</button>
-                <button class="category-chip" onclick="filterByTag('퍼즐', this)">🧩 퍼즐</button>
-                <button class="category-chip" onclick="filterByTag('액션', this)">⚡ 액션</button>
-                <button class="category-chip" onclick="filterByTag('전략', this)">🎯 전략</button>
-                <button class="category-chip" onclick="filterByTag('클래식', this)">🎲 클래식</button>
-            </div>
+            <div id="categoryContainer"></div>
         </div>
     </div>
     
@@ -347,79 +338,51 @@
         <p><a href="https://github.com/oringnam/minigames" target="_blank">GitHub</a></p>
     </div>
     
+    <script src="game-utils.js"></script>
     <script>
-        // 캐시 새로고침
-        async function clearCache() {
-            try {
-                if ('caches' in window) {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(cacheNames.map(name => caches.delete(name)));
-                }
-                
-                alert('✅ 캐시가 삭제되었습니다.');
-                const url = new URL(window.location.href);
-                url.searchParams.set('v', Date.now());
-                window.location.href = url.toString();
-            } catch (error) {
-                console.error('캐시 클리어 실패:', error);
-                alert('❌ 캐시 클리어 중 오류가 발생했습니다.');
-            }
+        // 상태 관리
+        let currentTag = 'all';
+        let currentSearch = '';
+        
+        // 필터링 함수 (통합)
+        function applyFilters() {
+            const cards = document.querySelectorAll('.game-card');
+            GameUtils.filterCards({
+                cards: cards,
+                searchTerm: currentSearch,
+                tag: currentTag,
+                emptyStateId: 'emptyState'
+            });
         }
         
-        // 검색 필터
-        function filterGames() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.game-card');
-            let visibleCount = 0;
-            
-            cards.forEach(card => {
-                const name = card.querySelector('.game-name').textContent.toLowerCase();
-                const desc = card.querySelector('.game-desc').textContent.toLowerCase();
-                
-                if (name.includes(searchTerm) || desc.includes(searchTerm)) {
-                    card.style.display = 'flex';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
-        }
-        
-        // 카테고리 필터
-        function filterByTag(tag, button) {
-            // 버튼 활성화
-            document.querySelectorAll('.category-chip').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            button.classList.add('active');
-            
-            // 검색 초기화
-            document.getElementById('searchInput').value = '';
-            
-            const cards = document.querySelectorAll('.game-card');
-            let visibleCount = 0;
-            
-            if (tag === 'all') {
-                cards.forEach(card => {
-                    card.style.display = 'flex';
-                    visibleCount++;
-                });
-            } else {
-                cards.forEach(card => {
-                    const tags = card.getAttribute('data-tags');
-                    if (tags && tags.includes(tag)) {
-                        card.style.display = 'flex';
-                        visibleCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
+        // 검색창 초기화
+        GameUI.createSearchBar({
+            placeholder: '🔍 게임 검색...',
+            containerId: 'searchContainer',
+            onSearch: (searchTerm) => {
+                currentSearch = searchTerm;
+                applyFilters();
             }
-            
-            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
-        }
+        });
+        
+        // 카테고리 칩 초기화
+        GameUI.createCategoryChips({
+            categories: [
+                { id: 'all', label: '전체' },
+                { id: '아케이드', label: '아케이드', emoji: '🕹️' },
+                { id: '퍼즐', label: '퍼즐', emoji: '🧩' },
+                { id: '액션', label: '액션', emoji: '⚡' },
+                { id: '전략', label: '전략', emoji: '🎯' },
+                { id: '클래식', label: '클래식', emoji: '🎲' }
+            ],
+            containerId: 'categoryContainer',
+            onSelect: (tag) => {
+                currentTag = tag;
+                currentSearch = ''; // 검색 초기화
+                document.querySelector('.search-input').value = '';
+                applyFilters();
+            }
+        });
     </script>
 </body>
 </html>
