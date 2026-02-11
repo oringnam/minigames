@@ -44,89 +44,107 @@
         
         .game-info {
             display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
-            gap: 20px;
+            flex-direction: row;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
             width: 100%;
             max-width: 500px;
         }
         
         .info-box {
-            background: #f0f0f0;
-            padding: 15px 30px;
-            border-radius: 10px;
-            min-width: 100px;
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            padding: 10px 15px;
+            border-radius: 15px;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
         }
         
         .info-box h3 {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 5px;
+            font-size: 0.7em;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .info-box p {
-            font-size: 1.8em;
+            font-size: 1.5em;
             font-weight: bold;
-            color: #6c5ce7;
+            color: white;
         }
         
         .memory-board {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+            gap: 10px;
             max-width: 500px;
             margin: 0 auto 30px;
+            perspective: 1000px;
         }
         
         .card {
             aspect-ratio: 1;
-            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3em;
+            position: relative;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
             user-select: none;
         }
         
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: scale(1.05);
         }
         
         .card.flipped {
-            background: white;
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            transform: rotateY(180deg);
         }
         
         .card.matched {
-            background: #00b894;
-            cursor: default;
-            animation: match 0.5s;
+            animation: match 0.6s ease-out;
+            pointer-events: none;
+        }
+        
+        .card .back,
+        .card .front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            backface-visibility: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            font-size: 3em;
         }
         
         .card .back {
-            display: block;
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 3.5em;
         }
         
         .card .front {
-            display: none;
+            background: white;
+            transform: rotateY(180deg);
+            box-shadow: 0 5px 20px rgba(108, 92, 231, 0.4);
         }
         
-        .card.flipped .back {
-            display: none;
-        }
-        
-        .card.flipped .front {
-            display: block;
+        .card.matched .front {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            animation: pulse 0.8s ease-in-out;
         }
         
         @keyframes match {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            0%, 100% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.2); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.15); }
         }
         
         .btn-group {
@@ -189,18 +207,18 @@
             
             .game-info {
                 flex-direction: row;
-                gap: 8px;
-                margin-bottom: 20px;
+                gap: 6px;
+                margin-bottom: 15px;
             }
             
             .info-box {
-                padding: 10px 15px;
+                padding: 8px 10px;
                 min-width: auto;
                 flex: 1;
             }
             
             .info-box h3 {
-                font-size: 0.75em;
+                font-size: 0.65em;
             }
             
             .info-box p {
@@ -208,12 +226,18 @@
             }
             
             .memory-board {
-                grid-template-columns: repeat(4, calc((100vw - 70px) / 4));
-                gap: 8px;
+                grid-template-columns: repeat(4, calc((100vw - 60px) / 4));
+                gap: 6px;
                 max-width: 100%;
             }
             
-            .card {
+            .card .back,
+            .card .front {
+                font-size: 2em;
+                border-radius: 10px;
+            }
+            
+            .card .back {
                 font-size: 2.5em;
             }
             
