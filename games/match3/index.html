@@ -173,6 +173,7 @@
         let score = 0;
         let moves = 30;
         let target = 1000;
+        let chain = 0; // 연쇄 카운터
         
         // 점수판 생성 (GameUI)
         const scoreBoard = GameUI.createScoreBoard({
@@ -257,6 +258,7 @@
                     swapGems(r1, c1, row, col);
                     
                     if (findMatches().length > 0) {
+                        chain = 0; // 연쇄 카운터 리셋 (새 이동)
                         moves--;
                         scoreBoard.update('moves', moves);
                         processMatches();
@@ -332,14 +334,20 @@
             const matches = findMatches();
             
             if (matches.length > 0) {
-                const points = matches.length * 10;
+                chain++; // 연쇄 증가
+                
+                // 연쇄 보너스
+                const basePoints = matches.length * 10;
+                const chainBonus = chain > 1 ? (chain - 1) * 5 : 0;
+                const points = basePoints + chainBonus;
                 score += points;
                 scoreBoard.update('score', score);
                 
-                // 🎵 사운드 & 진동 (큰 매치는 파워업 사운드)
-                if (matches.length >= 5) {
+                // 🎵 사운드 & 진동 (큰 매치 또는 연쇄는 파워업 사운드)
+                if (matches.length >= 5 || chain >= 3) {
                     sounds.play('powerup');
                     vibrate([50, 30, 50]);
+                    console.log(`💎 ${chain}연쇄! +${points}점`);
                 } else {
                     sounds.play('match');
                     vibrate(30);
@@ -443,9 +451,14 @@
             score = 0;
             moves = 30;
             selectedGem = null;
+            chain = 0;
             
             scoreBoard.update('score', 0);
             scoreBoard.update('moves', 30);
+            
+            // 플레이 추적
+            GameUtils.trackPlay('match3');
+            GameUtils.startTimer('match3');
             
             // 🎵 게임 시작 사운드
             sounds.play('click');
@@ -454,6 +467,9 @@
             renderBoard();
         }
         
+        // 게임 시작
+        GameUtils.trackPlay('match3');
+        GameUtils.startTimer('match3');
         initGame();
     </script>
 </body>
