@@ -30,18 +30,17 @@ minigames/
 
 ---
 
-## 🎮 현재 게임 (8개)
+## 🎮 현재 게임 (4개)
 
-| 게임 | 디렉토리 | 특징 |
-|------|----------|------|
-| 🐍 Snake | `games/snake/` | 파티클, 사운드, 진동 |
-| 🧠 Memory | `games/memory/` | 3D 카드 플립, 난이도 시스템 |
-| 💎 Match-3 | `games/match3/` | 빅매치 감지, 파워업 |
-| 🎵 Simon Says | `games/simon/` | 마일스톤 사운드, 대형 버튼 |
-| 🚀 Space Shooter | `games/spaceshooter/` | 폭발 파티클, 레벨업 |
-| 🔨 Whack-a-Mole | `games/whackamole/` | 콤보 시스템, 보너스 |
-| 📦 Sokoban | `games/sokoban/` | 박스-목표 사운드, 실행취소 |
-| 🃏 Blackjack | `games/blackjack/` | 블랙잭/버스트 사운드 |
+| 게임 | 디렉토리 | 특징 | 공통 모듈 적용 |
+|------|----------|------|----------------|
+| 🐍 Snake | `games/snake/` | 파티클, 사운드, 진동, 액자 테두리 | ⏳ 예정 |
+| 🧠 Memory | `games/memory/` | 3D 카드 플립, 난이도 시스템 | ⏳ 예정 |
+| 💎 Match-3 | `games/match3/` | 빅매치 감지, 파워업 | ⏳ 예정 |
+| 🎵 Simon Says | `games/simon/` | 마일스톤 사운드, 대형 버튼 | ✅ 완료 |
+
+**제거된 게임** (2026-02-11):
+- 🚀 Space Shooter, 📦 Sokoban, 🃏 Blackjack, 🔨 Whack-a-Mole
 
 ---
 
