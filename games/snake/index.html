@@ -149,7 +149,7 @@
         }
         
         .game-over button {
-            padding: 15px 50px;
+            padding: 15px 40px;
             background: white;
             color: #667eea;
             border: none;
@@ -157,14 +157,24 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            margin: 10px 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             transition: all 0.3s;
+            display: inline-block;
         }
         
         .game-over button:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .game-over .share-btn {
+            background: #FFD700;
+            color: #333;
+        }
+        
+        .game-over .share-btn:hover {
+            background: #FFC700;
         }
         
         @keyframes fadeIn {
@@ -216,8 +226,10 @@
             <h2 style="white-space: nowrap;">게임 오버!</h2>
             <p>최종 점수</p>
             <p style="font-size: 2.5em; font-weight: bold; margin: 10px 0;"><span id="finalScore">0</span></p>
-            <button onclick="shareScore()" style="margin: 10px 5px; background: rgba(255,255,255,0.2); border: 2px solid white;">📋 공유하기</button>
-            <button onclick="restartGame()" style="margin: 10px 5px;">다시 시작 🔄</button>
+            <div style="margin-top: 20px;">
+                <button onclick="shareScore()" class="share-btn">📋 공유하기</button>
+                <button onclick="restartGame()">🔄 다시 시작</button>
+            </div>
         </div>
     </div>
     
@@ -252,11 +264,12 @@
         let moveProgress = 0;
         let lastMoveTime = 0;
         let MOVE_INTERVAL = 150; // 이동 간격 (ms)
+        let isGameOver = false; // 게임오버 플래그
         
         document.getElementById('highScore').textContent = highScore;
         
         function updateGame(currentTime) {
-            if (paused) return;
+            if (paused || isGameOver) return;
             
             // 이동 로직 (일정 간격마다)
             if (currentTime - lastMoveTime >= MOVE_INTERVAL && (velocityX !== 0 || velocityY !== 0)) {
@@ -269,14 +282,14 @@
                 
                 // 벽 충돌 체크
                 if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                    gameOver();
+                    if (!isGameOver) gameOver();
                     return;
                 }
                 
                 // 자기 자신 충돌 체크
                 for (let i = 0; i < snake.length; i++) {
                     if (head.x === snake[i].x && head.y === snake[i].y) {
-                        gameOver();
+                        if (!isGameOver) gameOver();
                         return;
                     }
                 }
@@ -413,6 +426,9 @@
         }
         
         function gameOver() {
+            if (isGameOver) return; // 이미 게임오버 상태면 중복 실행 방지
+            isGameOver = true;
+            
             if (animationLoop) cancelAnimationFrame(animationLoop);
             sounds.gameover();
             vibrate([100, 50, 100]);
@@ -461,6 +477,7 @@
             paused = false;
             moveProgress = 0;
             lastMoveTime = 0;
+            isGameOver = false; // 게임오버 플래그 리셋
             document.getElementById('score').textContent = score;
             document.getElementById('gameOver').style.display = 'none';
             generateFood();
