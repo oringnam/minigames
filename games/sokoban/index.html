@@ -99,6 +99,7 @@
         }
     </style>
     <script src="../../mobile-controls.js"></script>
+    <script src="../../game-sounds.js"></script>
 </head>
 <body>
     <div class="container">
@@ -156,6 +157,9 @@
         let walls = [];
         let moves = 0;
         let history = [];
+        
+        // 사운드
+        const sounds = new GameSounds();
         
         const levels = [
             [
@@ -327,22 +331,43 @@
             const newX = player.x + dx;
             const newY = player.y + dy;
             
-            if (isWall(newX, newY)) return;
+            // 벽에 부딪힘
+            if (isWall(newX, newY)) {
+                sounds.play('error');
+                vibrate(50);
+                return;
+            }
             
             const box = getBox(newX, newY);
             if (box) {
                 const boxNewX = box.x + dx;
                 const boxNewY = box.y + dy;
                 
+                // 상자를 밀 수 없음 (벽 or 다른 상자)
                 if (isWall(boxNewX, boxNewY) || getBox(boxNewX, boxNewY)) {
+                    sounds.play('error');
+                    vibrate(50);
                     return;
                 }
                 
                 saveState();
                 box.x = boxNewX;
                 box.y = boxNewY;
+                
+                // 🎵 상자를 밀었을 때
+                const onTarget = targets.some(t => t.x === boxNewX && t.y === boxNewY);
+                if (onTarget) {
+                    sounds.play('success'); // 목표 지점에 놓음!
+                    vibrate([30, 20, 30]);
+                } else {
+                    sounds.play('pop'); // 일반 상자 밀기
+                    vibrate(20);
+                }
             } else {
                 saveState();
+                // 🎵 일반 이동
+                sounds.play('click');
+                vibrate(10);
             }
             
             player.x = newX;
@@ -360,10 +385,14 @@
             );
             
             if (allBoxesOnTargets) {
+                // 🎵 레벨 클리어!
+                sounds.play('victory');
+                vibrate([100, 50, 100, 50, 200]);
+                
                 setTimeout(() => {
                     alert(`🎉 레벨 클리어! ${moves}번 이동`);
                     nextLevel();
-                }, 300);
+                }, 500);
             }
         }
         
@@ -374,15 +403,26 @@
                 boxes = state.boxes;
                 moves = state.moves;
                 document.getElementById('moves').textContent = moves;
+                
+                // 🎵 되돌리기 사운드
+                sounds.play('pop');
+                vibrate(20);
+                
                 draw();
+            } else {
+                // 되돌릴 게 없음
+                sounds.play('error');
+                vibrate(50);
             }
         }
         
         function resetLevel() {
+            sounds.play('click');
             loadLevel(currentLevel);
         }
         
         function nextLevel() {
+            sounds.play('click');
             loadLevel(currentLevel + 1);
         }
         
