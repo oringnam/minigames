@@ -123,17 +123,17 @@
         .joystick-wrapper {
             position: relative;
             width: 100%;
-            height: 140px;
+            height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 10px;
+            margin-top: 15px;
         }
         
         .joystick-container {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             touch-action: none;
         }
         
@@ -520,6 +520,12 @@
         // 게임 시작
         generateFood();
         animationLoop = requestAnimationFrame(animate);
+        
+        // 모바일 감지
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                || window.innerWidth < 768;
+        }
         
         // Mobile controls (조이스틱 직접 구현)
         if (isMobile()) {
