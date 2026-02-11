@@ -245,6 +245,37 @@ class GameUtils {
     }
     
     /**
+     * 게임 통계 추적
+     */
+    static trackPlay(gameId) {
+        const plays = GameUtils.getScore(gameId, 'totalPlays', 0);
+        GameUtils.saveScore(gameId, 'totalPlays', plays + 1);
+    }
+    
+    static getPlayCount(gameId) {
+        return GameUtils.getScore(gameId, 'totalPlays', 0);
+    }
+    
+    /**
+     * 플레이 시간 추적
+     */
+    static startTimer(gameId) {
+        const startTime = Date.now();
+        sessionStorage.setItem(`${gameId}_startTime`, startTime);
+        return startTime;
+    }
+    
+    static getPlayTime(gameId) {
+        const startTime = sessionStorage.getItem(`${gameId}_startTime`);
+        if (!startTime) return 0;
+        return Math.floor((Date.now() - parseInt(startTime)) / 1000); // 초 단위
+    }
+    
+    static clearTimer(gameId) {
+        sessionStorage.removeItem(`${gameId}_startTime`);
+    }
+    
+    /**
      * 카드 필터링 (검색어 또는 태그)
      */
     static filterCards(options = {}) {
