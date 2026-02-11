@@ -65,25 +65,29 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
-        .action-btn {
-            padding: 10px 18px;
+        /* 작은 아이콘 버튼 */
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
             background: rgba(255,255,255,0.25);
             color: white;
             border: 1px solid rgba(255,255,255,0.4);
-            border-radius: 20px;
+            border-radius: 50%;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9em;
-            white-space: nowrap;
+            margin-left: 8px;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
+            vertical-align: middle;
         }
         
-        .action-btn:hover {
+        .icon-btn:hover {
             background: white;
             color: #667eea;
-            transform: translateY(-2px);
+            transform: scale(1.1);
         }
         
         /* 카테고리 칩 (가로 스크롤) */
@@ -136,15 +140,6 @@
             .games-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
-            }
-            
-            .search-actions {
-                flex-direction: column;
-            }
-            
-            .action-btn {
-                width: 100%;
-                justify-content: center;
             }
         }
         
@@ -279,13 +274,13 @@
             <h1>🎮 미니게임 아케이드</h1>
             <div class="header-subtitle">
                 총 4개 게임 • 📱 모바일 지원
+                <a href="stats.html" class="icon-btn" title="통계">📊</a>
+                <button class="icon-btn" onclick="clearCache()" title="캐시 새로고침">🔄</button>
             </div>
             
-            <!-- 검색 + 액션 버튼 -->
+            <!-- 검색 -->
             <div class="search-actions">
                 <input type="text" class="search-input" id="searchInput" placeholder="🔍 게임 검색..." oninput="filterGames()">
-                <a href="stats.html" class="action-btn">📊 통계</a>
-                <button class="action-btn" onclick="clearCache()">🔄 캐시</button>
             </div>
             
             <!-- 카테고리 칩 (가로 스크롤) -->
