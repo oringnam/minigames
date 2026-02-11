@@ -216,7 +216,7 @@
         let level = 1;
         let gameLoop;
         let dropCounter = 0;
-        let dropInterval = 1000;
+        let dropInterval = 1200; // 속도 낮춤 (1000 -> 1200ms)
         let lastTime = 0;
         let paused = false;
         
@@ -329,7 +329,7 @@
                 lines += linesCleared;
                 score += [0, 100, 300, 500, 800][linesCleared] * level;
                 level = Math.floor(lines / 10) + 1;
-                dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+                dropInterval = Math.max(200, 1200 - (level - 1) * 80); // 속도 조정
                 
                 document.getElementById('score').textContent = score;
                 document.getElementById('lines').textContent = lines;

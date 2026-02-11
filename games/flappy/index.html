@@ -165,9 +165,9 @@
             y: canvas.height / 2,
             width: 34,
             height: 24,
-            gravity: 0.6,
+            gravity: 0.5, // 중력 낮춤 (0.6 -> 0.5)
             velocity: 0,
-            jump: -10
+            jump: -9 // 점프력 낮춤 (-10 -> -9)
         };
         
         let pipes = [];
@@ -255,9 +255,9 @@
                 return;
             }
             
-            // 파이프 이동 및 충돌 검사
+            // 파이프 이동 및 충돌 검사 (속도 낮춤)
             pipes.forEach((pipe, index) => {
-                pipe.x -= 3;
+                pipe.x -= 2.5; // 속도 낮춤 (3 -> 2.5)
                 
                 // 파이프 통과 점수
                 if (!pipe.passed && pipe.x + pipe.width < bird.x) {

@@ -199,10 +199,10 @@
         const ball = {
             x: canvas.width / 2,
             y: canvas.height / 2,
-            dx: 4,
-            dy: 4,
+            dx: 3,
+            dy: 3,
             size: BALL_SIZE,
-            speed: 4
+            speed: 3 // 속도 낮춤 (4 -> 3)
         };
         
         let playerScore = 0;
@@ -213,20 +213,20 @@
             difficulty = document.getElementById('difficulty').value;
             switch(difficulty) {
                 case 'easy':
-                    aiSpeed = 2.5;
-                    ball.speed = 3;
+                    aiSpeed = 2;
+                    ball.speed = 2.5;
                     break;
                 case 'medium':
-                    aiSpeed = 4;
-                    ball.speed = 4;
+                    aiSpeed = 3;
+                    ball.speed = 3;
                     break;
                 case 'hard':
-                    aiSpeed = 6;
-                    ball.speed = 5;
+                    aiSpeed = 4.5;
+                    ball.speed = 4;
                     break;
                 case 'insane':
-                    aiSpeed = 10;
-                    ball.speed = 6;
+                    aiSpeed = 7;
+                    ball.speed = 5;
                     break;
             }
             resetBall();

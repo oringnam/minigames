@@ -175,7 +175,7 @@
         let obstacles = [];
         let distance = 0;
         let highScore = localStorage.getItem('runnerHighScore') || 0;
-        let gameSpeed = 5;
+        let gameSpeed = 4; // 속도 낮춤 (5 -> 4)
         let gameRunning = false;
         let frameCount = 0;
         
@@ -314,9 +314,9 @@
                     distance += 10;
                     document.getElementById('distance').textContent = distance + 'm';
                     
-                    // 속도 증가
-                    if (distance % 100 === 0 && gameSpeed < 12) {
-                        gameSpeed += 0.5;
+                    // 속도 증가 (천천히)
+                    if (distance % 100 === 0 && gameSpeed < 10) {
+                        gameSpeed += 0.3; // 증가량 낮춤 (0.5 -> 0.3)
                     }
                     
                     if (distance > highScore) {

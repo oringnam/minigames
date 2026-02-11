@@ -278,7 +278,7 @@
             document.getElementById('score').textContent = score;
             document.getElementById('gameOver').style.display = 'none';
             generateFood();
-            gameLoop = setInterval(drawGame, 100);
+            gameLoop = setInterval(drawGame, 130);
         }
         
         document.addEventListener('keydown', (e) => {
@@ -305,7 +305,7 @@
         
         // 게임 시작
         generateFood();
-        gameLoop = setInterval(drawGame, 100);
+        gameLoop = setInterval(drawGame, 130); // 속도 낮춤 (100 -> 130ms)
         
         // Mobile controls
         if (isMobile()) {

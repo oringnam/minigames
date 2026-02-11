@@ -288,7 +288,7 @@
                 x: Math.random() * (canvas.width - 40) + 20,
                 y: -20,
                 size: 15 + Math.random() * 10,
-                speed: 1 + level * 0.3,
+                speed: 0.8 + level * 0.2, // 속도 낮춤
                 color: ['#ef4444', '#f59e0b', '#a855f7'][Math.floor(Math.random() * 3)]
             });
         }
@@ -348,8 +348,8 @@
             player.x += (mouseX - player.x) * 0.1;
             player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
             
-            // 적 생성
-            if (frameCount % Math.max(30 - level * 2, 15) === 0) {
+            // 적 생성 (주기 늦춤)
+            if (frameCount % Math.max(40 - level * 2, 20) === 0) { // 생성 주기 늦춤
                 spawnEnemy();
             }
             
