@@ -88,8 +88,22 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
         }
         
         .game-card {
@@ -342,7 +356,10 @@
     </div>
     
     <div class="footer">
-        <p>Made with ❤️ | 계속 업데이트 중...</p>
+        <p>Made with ❤️ by Claude | 2025-02-11 | <strong>17개 게임</strong></p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+            GitHub: <a href="https://github.com/oringnam/minigames" target="_blank" style="color: white; text-decoration: underline;">oringnam/minigames</a>
+        </p>
     </div>
     
     <script>
