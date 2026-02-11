@@ -1,155 +1,245 @@
 # 🎮 미니게임 아케이드
 
-다양한 장르의 브라우저 기반 미니게임 모음
+> 모바일 우선, Glassmorphism 디자인의 브라우저 기반 게임 컬렉션
 
-## 게임 목록
+**라이브**: https://oringnam.github.io/minigames/  
+**레포**: https://github.com/oringnam/minigames
+
+---
+
+## ✨ 특징
+
+- 🎨 **Glassmorphism 디자인**: 반투명 유리 효과의 고급스러운 UI
+- 📱 **모바일 최적화**: 터치 컨트롤, 세로 화면 완벽 지원
+- 🔊 **몰입감**: 사운드, 진동, 파티클 효과
+- 💾 **점수 저장**: LocalStorage 기반 최고 기록
+- 🚀 **바닐라 JS**: 프레임워크 없이 순수 JavaScript
+- 🎯 **4개의 완성도 높은 게임**: 품질 중심 큐레이션
+
+---
+
+## 🎮 게임 목록
 
 ### 🐍 스네이크 (Snake)
-클래식 아케이드 게임. 먹이를 먹고 길어지며 벽과 자기 자신을 피하세요.
-- 장르: 아케이드, 클래식
-- 조작: 화살표 키 또는 WASD
-- 특징: 최고점수 저장
+클래식 뱀 게임. 먹이를 먹고 길어지며 벽과 자신을 피하세요.
 
-### 🐦 플래피 버드 (Flappy Bird)
-타이밍 기반 게임. 클릭하여 날아오르고 파이프 사이를 통과하세요.
-- 장르: 액션, 타이밍
-- 조작: 클릭 또는 스페이스바
-- 특징: 물리 기반 움직임, 점수 시스템
+**특징**:
+- 가상 조이스틱 (모바일)
+- 부드러운 애니메이션
+- 액자 테두리 디자인
+- 파티클 효과
 
-### 🟦 테트리스 (Tetris)
-퍼즐 게임의 클래식. 떨어지는 블록을 쌓아 라인을 완성하세요.
-- 장르: 퍼즐, 전략
-- 조작: 화살표 키 (회전, 이동, 빠른 낙하)
-- 특징: 레벨 시스템, 속도 증가
+**조작**: 화살표/WASD 또는 조이스틱
 
-### 🔢 2048
-숫자 퍼즐 게임. 같은 숫자를 합쳐 2048을 만드세요.
-- 장르: 퍼즐, 전략
-- 조작: 화살표 키 또는 WASD, 터치 스와이프
-- 특징: 최고점수 저장, 모바일 지원
-
-### 🎯 브레이크아웃 (Breakout)
-아케이드 클래식. 공을 튕겨 모든 벽돌을 부수세요.
-- 장르: 아케이드, 액션
-- 조작: 마우스, 스페이스바
-- 특징: 라이프 시스템, 레벨 진행
+---
 
 ### 🧠 메모리 게임 (Memory Game)
-카드 짝맞추기 게임. 같은 이모지를 찾으세요.
-- 장르: 퍼즐, 기억력
-- 조작: 클릭
-- 특징: 시간 측정, 시도 횟수 카운트
+같은 카드 짝 맞추기. 3D 플립 애니메이션.
 
-### 🏃 엔드리스 러너 (Endless Runner)
-끝없이 달리며 장애물을 피하는 게임.
-- 장르: 액션, 스피드
-- 조작: 스페이스바, 클릭 또는 화살표 위
-- 특징: 점진적 난이도 증가, 거리 기록
+**특징**:
+- 3단계 난이도 (4x2 → 4x4 → 4x6)
+- 5개 목숨 시스템
+- 3D 카드 플립 (rotateY 180deg)
+- 단계 클리어 보상
 
-### 🏓 퐁 (Pong)
-최초의 비디오 게임. AI와 탁구 대결을 펼치세요.
-- 장르: 클래식, 스포츠
-- 조작: 마우스 또는 화살표 위/아래
-- 특징: 난이도 조절, AI 대전
+**조작**: 클릭/터치
 
-### 💎 매치 3 (Match 3)
-같은 색 보석을 3개 이상 맞춰 터뜨리세요.
-- 장르: 퍼즐, 캐주얼
-- 조작: 클릭
-- 특징: 연쇄 콤보, 목표 점수 시스템
+---
 
-### 🌀 미로 탈출 (Maze)
-랜덤 생성 미로를 최대한 빨리 탈출하세요.
-- 장르: 퍼즐, 전략
-- 조작: 화살표 키 또는 WASD
-- 특징: 무한 랜덤 미로, 시간 측정
+### 💎 매치 3 (Match-3)
+보석 3개 이상 맞추기. 연쇄 반응으로 높은 점수!
 
-### 🔴🟢🟡🔵 사이먼 세즈 (Simon Says)
-순서를 기억하고 따라하세요.
-- 장르: 기억력, 리듬
-- 조작: 클릭
-- 특징: 사운드, 점진적 난이도
+**특징**:
+- 8x8 보드
+- 연쇄 반응 감지
+- 빅매치 보너스 (5개 이상)
+- 30번 이동으로 목표 달성
 
-### 🚀 스페이스 슈터 (Space Shooter)
-적 우주선을 격추하고 최대한 오래 살아남으세요.
-- 장르: 슈팅, 액션
-- 조작: 마우스 이동, 클릭 또는 스페이스바
-- 특징: 레벨 시스템, 파티클 효과
+**조작**: 클릭/터치
 
-### 🍪 쿠키 클리커 (Cookie Clicker)
-클릭하고 업그레이드하여 쿠키 제국을 건설하세요.
-- 장르: 아이들, 전략
-- 조작: 클릭
-- 특징: 6가지 업그레이드, 자동 생산
+---
 
-### 🔨 두더지 잡기 (Whack-a-Mole)
-30초 안에 최대한 많은 두더지를 잡으세요.
-- 장르: 반응속도, 캐주얼
-- 조작: 클릭
-- 특징: 최고점수 저장
+### 🎵 사이먼 세즈 (Simon Says)
+순서를 기억하고 따라하세요. 집중력 게임!
 
-### 📦 소코반 (Sokoban)
-모든 상자를 목표 지점에 밀어넣는 퍼즐 게임.
-- 장르: 퍼즐, 전략
-- 조작: 화살표 키 또는 WASD
-- 특징: 되돌리기, 멀티 레벨
+**특징**:
+- 4개 대형 버튼
+- 사운드 시퀀스
+- 마일스톤 축하 (레벨 5, 10, 15...)
+- 신기록 알림
 
-### ♠️ 블랙잭 (Blackjack)
-21을 넘지 않으면서 딜러를 이기세요.
-- 장르: 카드, 전략
-- 조작: 클릭
-- 특징: 칩 시스템, AI 딜러
+**조작**: 클릭/터치
 
-### ⭕❌ 틱택토 (Tic-Tac-Toe)
-3개를 먼저 만들면 승리! AI와 대결하세요.
-- 장르: 클래식, 전략
-- 조작: 클릭
-- 특징: 3단계 난이도, 통계 기록
+---
 
-## 기술 스택
+## 🛠️ 기술 스택
 
-- HTML5 Canvas
-- Vanilla JavaScript
-- CSS3
-- LocalStorage (점수 저장)
+### 코어
+- **HTML5 Canvas**: 게임 렌더링
+- **Vanilla JavaScript**: 프레임워크 없음
+- **CSS3**: Glassmorphism, 애니메이션
+- **LocalStorage**: 점수/설정 저장
 
-## 특징
+### 공통 모듈
+- `game-sounds.js`: 사운드/파티클/진동 라이브러리 (11가지 사운드)
+- `game-utils.js`: 점수 저장, 모달, UI 컴포넌트 (GameUtils, GameUI)
+- `mobile-layout.css`: 모바일 최적화 레이아웃
 
-- 🎨 모던한 UI/UX 디자인
-- 📱 **모바일 터치 컨트롤 지원** (가상 조이스틱 & 버튼)
-- 💾 로컬스토리지 최고점수 저장
-- 🎮 17개의 다양한 장르와 난이도
-- 🚀 순수 JavaScript (프레임워크 없음)
-- 🔍 검색 및 카테고리 필터 기능
-- 📊 통계 페이지
-- ⚡ 빠른 로딩, 설치 불필요
-- 🕹️ PC & 모바일 모두 최적화
+### 디자인
+- **Glassmorphism**: `rgba(255, 255, 255, 0.15)` + `backdrop-filter: blur(20px)`
+- **그라디언트 배경**: 게임별 고유 색상
+- **흰색 텍스트**: 그림자로 가독성 확보
 
-## 플레이 방법
+---
 
-1. [GitHub Pages 링크]에서 바로 플레이
-2. 또는 로컬에서:
-   ```bash
-   git clone [repository-url]
-   cd minigames
-   # 웹 서버로 index.html 열기
-   ```
+## 🚀 시작하기
 
-## 개발 로그
+### 온라인 플레이
+https://oringnam.github.io/minigames/ 접속
 
-### 2025-02-11
-- **이터레이션 1:** 초기 8개 게임 (Snake, Flappy, Tetris, 2048, Breakout, Memory, Runner, Pong)
-- **이터레이션 2:** 3개 게임 추가 (Match3, Maze, Simon) + 통계 페이지
-- **이터레이션 3:** 3개 게임 추가 (Space Shooter, Cookie Clicker, Whack-a-Mole)
-- **이터레이션 4:** 2개 게임 추가 (Sokoban, Blackjack)
-- **이터레이션 5:** UI/UX 개선 (검색, 필터) + Tic-Tac-Toe
-- **이터레이션 6:** 반응형 개선, 최종 마무리
-- **총 17개 게임 완성!** 🎉
+### 로컬 실행
+```bash
+git clone https://github.com/oringnam/minigames.git
+cd minigames
+# 웹 서버로 index.html 열기 (Live Server 등)
+```
 
-## 라이선스
+---
+
+## 📁 프로젝트 구조
+
+```
+minigames/
+├── index.html              # 메인 페이지
+├── stats.html              # 통계 페이지
+├── game-sounds.js          # 사운드 라이브러리
+├── game-utils.js           # 공통 유틸리티
+├── mobile-layout.css       # 모바일 레이아웃
+├── CLAUDE.md               # 개발 가이드 (8.5KB)
+├── EXAMPLES.html           # 공통 모듈 예시
+└── games/
+    ├── snake/              # 🐍 스네이크
+    ├── memory/             # 🧠 메모리 게임
+    ├── match3/             # 💎 매치 3
+    └── simon/              # 🎵 사이먼 세즈
+```
+
+---
+
+## 🎨 디자인 시스템
+
+### Glassmorphism
+```css
+/* 기본 컨테이너 */
+background: rgba(255, 255, 255, 0.15);
+backdrop-filter: blur(20px);
+border: 2px solid rgba(255, 255, 255, 0.3);
+box-shadow: 
+    0 20px 60px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+```
+
+### 색상 팔레트
+- Snake: `#1e3c72 → #2a5298` (파란색)
+- Memory: `#667eea → #764ba2` (보라색)
+- Match-3: `#f093fb → #f5576c` (핑크)
+- Simon Says: `#141E30 → #243B55` (검정)
+
+### 타이포그래피
+- 제목: 흰색, 900 font-weight, text-shadow
+- 버튼: 흰색, 600 font-weight
+- 본문: rgba(255, 255, 255, 0.8~1.0)
+
+---
+
+## 📊 공통 모듈 사용법
+
+### game-sounds.js
+```javascript
+const sounds = new GameSounds();
+sounds.play('success');  // click, error, pop, coin, powerup, gameover, victory, match, flip, wrong
+vibrate(50);             // 진동
+screenShake(10, 300);    // 화면 흔들기
+```
+
+### game-utils.js
+```javascript
+// 점수 관리
+GameUtils.saveScore('snake', 'highScore', 1000);
+GameUtils.updateHighScore('snake', score);  // 자동 비교 + 저장
+
+// 점수판 생성
+const scoreBoard = GameUI.createScoreBoard({
+    items: [
+        { id: 'score', label: '점수', value: 0 },
+        { id: 'highScore', label: '최고', value: 100 }
+    ]
+});
+scoreBoard.update('score', 50);
+
+// 모달 생성
+GameUtils.createModal({
+    title: '🎉 게임 클리어!',
+    stats: [{ label: '점수', value: 1000 }],
+    buttons: [
+        { text: '📱 공유', action: () => shareKakao() },
+        { text: '다시', action: restart }
+    ]
+});
+```
+
+자세한 내용: [CLAUDE.md](./CLAUDE.md)
+
+---
+
+## 📜 개발 히스토리
+
+### v1.0-stable (2026-02-12)
+- ✅ 4개 게임 완성 (Snake, Memory, Match-3, Simon Says)
+- ✅ Glassmorphism 디자인 시스템 통일
+- ✅ 공통 모듈 100% 적용
+- ✅ 모바일 최적화 완료
+- ✅ 사운드/진동/파티클 완전 통합
+
+### 제거된 게임들 (품질 집중을 위해)
+- 2048, Tetris, Breakout, Flappy Bird, Space Shooter
+- Whack-a-Mole, Sokoban, Blackjack, Cookie Clicker
+- Runner, Maze, Pong, Tic-Tac-Toe
+
+**이유**: 10개 평범한 게임보다 4개 완성도 높은 게임
+
+---
+
+## 🤝 기여하기
+
+이 프로젝트는 **자율 개선 모드**로 운영됩니다.
+
+**개선 가능 영역**:
+- 버그 수정
+- UX/게임성 개선
+- 성능 최적화
+- 디자인 폴리싱
+
+**큰 변경은 이슈로**:
+- 새 게임 추가
+- 게임 룰 변경
+- 아키텍처 변경
+
+---
+
+## 📝 라이선스
 
 MIT License
 
 ---
 
-Made with ❤️ | 계속 업데이트 중...
+## 🔗 링크
+
+- **라이브**: https://oringnam.github.io/minigames/
+- **레포**: https://github.com/oringnam/minigames
+- **개발 가이드**: [CLAUDE.md](./CLAUDE.md)
+- **예시**: [EXAMPLES.html](./EXAMPLES.html)
+
+---
+
+**Made with ❤️** | 지속적으로 개선 중...
