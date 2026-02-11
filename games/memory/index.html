@@ -163,6 +163,100 @@
             color: #764ba2;
             font-weight: bold;
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .loading-dots {
+            display: inline-flex;
+            gap: 5px;
+        }
+        
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: #764ba2;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: modalSlide 0.3s ease-out;
+        }
+        
+        @keyframes modalSlide {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-content h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .modal-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-stats p {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+        
+        .modal-buttons .btn {
+            width: 100%;
         }
         
         .buttons {
@@ -253,13 +347,36 @@
             </div>
         </div>
         
-        <div class="message" id="message">준비 중...</div>
+        <div class="message" id="message">
+            🧠 <span id="messageText">준비 중</span>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
         
         <div class="memory-board" id="board"></div>
         
         <div class="buttons">
             <button class="btn" id="startBtn" onclick="startGame()">게임 시작</button>
             <a href="../../index.html" class="btn">← 메인으로</a>
+        </div>
+    </div>
+    
+    <!-- 게임 종료 모달 -->
+    <div class="modal" id="gameModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">🎉 게임 클리어!</h2>
+            <div class="modal-stats" id="modalStats">
+                <p>최종 단계: <strong id="finalStage">1</strong></p>
+                <p>남은 목숨: <strong id="finalLives">5</strong></p>
+                <p>최고 단계: <strong id="finalBest">1</strong></p>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="shareKakao()">📱 카톡 공유하기</button>
+                <button class="btn" onclick="closeModal()">다시 하기</button>
+            </div>
         </div>
     </div>
     
@@ -353,8 +470,16 @@
             });
         }
         
+        function setMessage(text, showLoading = false) {
+            const messageText = document.getElementById('messageText');
+            const loadingDots = document.querySelector('.loading-dots');
+            
+            messageText.textContent = text;
+            loadingDots.style.display = showLoading ? 'inline-flex' : 'none';
+        }
+        
         function showAllCards() {
-            document.getElementById('message').textContent = '카드를 기억하세요!';
+            setMessage('카드를 기억하세요!', false);
             canFlip = false;
             
             document.querySelectorAll('.card').forEach(card => {
@@ -369,7 +494,7 @@
                 });
                 
                 canFlip = true;
-                document.getElementById('message').textContent = '짝을 맞춰보세요!';
+                setMessage('짝을 맞춰보세요!', false);
                 
                 // 4단계 이상이면 섞기
                 const config = stageConfig[stage];
@@ -384,7 +509,7 @@
             isShuffling = true;
             canFlip = false;
             
-            document.getElementById('message').textContent = '카드 섞는 중...';
+            setMessage('카드 섞는 중', true);
             sounds.play('pop');
             
             const board = document.getElementById('board');
@@ -419,7 +544,7 @@
                     
                     isShuffling = false;
                     canFlip = true;
-                    document.getElementById('message').textContent = '짝을 맞춰보세요!';
+                    setMessage('짝을 맞춰보세요!', false);
                 }, 800);
             }, 500);
         }
@@ -500,12 +625,9 @@
                 updateUI();
                 
                 if (stage > 3) {
-                    alert(`🎉 모든 단계 클리어!\n최종 목숨: ${lives}개`);
-                    stage = 1;
-                    lives = 5;
-                    updateUI();
+                    showModal('🎉 모든 단계 클리어!', stage - 1, lives, bestStage, true);
                 } else {
-                    document.getElementById('message').textContent = `${stage-1}단계 클리어!`;
+                    setMessage(`${stage-1}단계 클리어!`, false);
                     
                     setTimeout(() => {
                         startStage();
@@ -519,14 +641,41 @@
             vibrate([100, 50, 100, 50, 200]);
             
             canFlip = false;
-            document.getElementById('message').textContent = '게임 오버!';
+            setMessage('게임 오버!', false);
             
             setTimeout(() => {
-                alert(`게임 오버!\n\n최종 단계: ${stage}\n최고 단계: ${bestStage}`);
-                stage = 1;
-                lives = 5;
-                updateUI();
+                showModal('💀 게임 오버!', stage, lives, bestStage, false);
             }, 1000);
+        }
+        
+        function showModal(title, finalStage, finalLives, finalBest, isVictory) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('finalStage').textContent = finalStage;
+            document.getElementById('finalLives').textContent = finalLives;
+            document.getElementById('finalBest').textContent = finalBest;
+            document.getElementById('gameModal').classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('gameModal').classList.remove('show');
+            stage = 1;
+            lives = 5;
+            updateUI();
+            setMessage('준비 중', true);
+        }
+        
+        function shareKakao() {
+            const finalStage = document.getElementById('finalStage').textContent;
+            const finalLives = document.getElementById('finalLives').textContent;
+            const finalBest = document.getElementById('finalBest').textContent;
+            
+            const text = `🧠 메모리 게임 결과\n\n최종 단계: ${finalStage}\n남은 목숨: ${finalLives}❤️\n최고 단계: ${finalBest}\n\nhttps://oringnam.github.io/minigames/games/memory/`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('📋 결과가 복사되었습니다!\n카톡에 붙여넣기 하세요.');
+            }).catch(() => {
+                alert(text);
+            });
         }
         
         function updateUI() {
