@@ -120,15 +120,18 @@
     function spawnHammer(forceType = null) {
         const rand = Math.random();
         let type = forceType;
+        const difficulty = Math.floor(gameTime / 5);
         
         if (!type) {
-            if (rand < 0.05) type = 'golden'; // 5% 황금 망치 (보너스)
-            else if (rand < 0.15) type = 'big'; // 10% 큰 망치 (위험)
-            else if (rand < 0.3) type = 'small'; // 15% 작은 망치 (빠름)
-            else type = 'normal'; // 70% 일반
+            // 10초 이후(페이즈 3)부터 지그재그 망치 등장
+            if (difficulty >= 2 && rand < 0.08) type = 'zigzag'; // 8% 지그재그 (10초 이후)
+            else if (rand < 0.13) type = 'golden'; // 5% 황금 망치 (보너스)
+            else if (rand < 0.23) type = 'big'; // 10% 큰 망치 (위험)
+            else if (rand < 0.38) type = 'small'; // 15% 작은 망치 (빠름)
+            else type = 'normal'; // 62% 일반
         }
         
-        let size, speed, color;
+        let size, speed, color, zigzagSpeed, zigzagDir;
         
         switch (type) {
             case 'golden':
@@ -146,6 +149,13 @@
                 speed = hammerSpeed * 1.5;
                 color = '#ff6b9d';
                 break;
+            case 'zigzag':
+                size = 45;
+                speed = hammerSpeed * 0.9;
+                color = '#9c27b0'; // 보라색
+                zigzagSpeed = 3;
+                zigzagDir = Math.random() < 0.5 ? 1 : -1; // 랜덤 방향
+                break;
             default: // normal
                 size = 40 + Math.random() * 15;
                 speed = hammerSpeed + Math.random() * 2;
@@ -159,7 +169,10 @@
             height: size,
             speed: speed,
             type: type,
-            color: color
+            color: color,
+            zigzagSpeed: zigzagSpeed || 0,
+            zigzagDir: zigzagDir || 0,
+            zigzagTimer: 0
         });
     }
     
@@ -263,6 +276,21 @@
         for (let i = hammers.length - 1; i >= 0; i--) {
             const hammer = hammers[i];
             hammer.y += hammer.speed;
+            
+            // 지그재그 망치 좌우 이동
+            if (hammer.type === 'zigzag') {
+                hammer.zigzagTimer += deltaTime;
+                hammer.x += hammer.zigzagSpeed * hammer.zigzagDir;
+                
+                // 벽에 부딪히면 방향 전환
+                if (hammer.x <= hammer.width / 2) {
+                    hammer.x = hammer.width / 2;
+                    hammer.zigzagDir = 1;
+                } else if (hammer.x >= WIDTH - hammer.width / 2) {
+                    hammer.x = WIDTH - hammer.width / 2;
+                    hammer.zigzagDir = -1;
+                }
+            }
 
             // 충돌 체크
             if (checkCollision(player, hammer)) {
@@ -273,7 +301,7 @@
                     sounds.play('powerup');
                     continue;
                 } else {
-                    // 일반/큰/작은 망치 - 게임 오버
+                    // 일반/큰/작은/지그재그 망치 - 게임 오버
                     gameOver();
                     return;
                 }
@@ -404,12 +432,21 @@
                 ctx.globalAlpha = 1;
             }
             
+            // 지그재그 망치는 반짝임 효과
+            if (hammer.type === 'zigzag') {
+                const pulse = Math.sin(Date.now() * 0.008) * 0.2 + 0.8;
+                ctx.globalAlpha = pulse;
+                ctx.fillStyle = '#ce93d8';
+                ctx.fillRect(-hammer.width / 2 + 3, -hammer.height / 2 + 3, hammer.width - 6, hammer.height * 0.6 - 6);
+                ctx.globalAlpha = 1;
+            }
+            
             // 망치 자루
-            ctx.fillStyle = hammer.type === 'golden' ? '#d4af37' : '#8b4513';
+            ctx.fillStyle = hammer.type === 'golden' ? '#d4af37' : (hammer.type === 'zigzag' ? '#7b1fa2' : '#8b4513');
             ctx.fillRect(-hammer.width / 6, -hammer.height / 2 + hammer.height * 0.6, hammer.width / 3, hammer.height * 0.4);
             
             // 테두리
-            ctx.strokeStyle = hammer.type === 'golden' ? '#ffd700' : 'white';
+            ctx.strokeStyle = hammer.type === 'golden' ? '#ffd700' : (hammer.type === 'zigzag' ? '#e1bee7' : 'white');
             ctx.lineWidth = hammer.type === 'big' ? 3 : 2;
             ctx.strokeRect(-hammer.width / 2, -hammer.height / 2, hammer.width, hammer.height * 0.6);
             
@@ -420,6 +457,13 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('★', 0, 0);
+            } else if (hammer.type === 'zigzag') {
+                // 좌우 화살표 표시
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('↔', 0, 0);
             }
             
             ctx.restore();
@@ -444,17 +488,20 @@
             ctx.fillText('모바일: 터치로 이동', WIDTH / 2, HEIGHT / 2 - 15);
             
             ctx.font = 'bold 16px sans-serif';
-            ctx.fillText('특수 망치', WIDTH / 2, HEIGHT / 2 + 15);
+            ctx.fillText('특수 망치', WIDTH / 2, HEIGHT / 2 + 10);
             
-            ctx.font = '14px sans-serif';
+            ctx.font = '13px sans-serif';
             ctx.fillStyle = '#ffd700';
-            ctx.fillText('★ 황금 망치: +100점 보너스!', WIDTH / 2, HEIGHT / 2 + 40);
+            ctx.fillText('★ 황금 망치: +100점 보너스!', WIDTH / 2, HEIGHT / 2 + 32);
             
             ctx.fillStyle = '#ff1744';
-            ctx.fillText('큰 망치: 느리지만 피하기 어려움', WIDTH / 2, HEIGHT / 2 + 60);
+            ctx.fillText('큰 망치: 느리지만 피하기 어려움', WIDTH / 2, HEIGHT / 2 + 50);
             
             ctx.fillStyle = '#ff6b9d';
-            ctx.fillText('작은 망치: 빠르게 떨어짐', WIDTH / 2, HEIGHT / 2 + 80);
+            ctx.fillText('작은 망치: 빠르게 떨어짐', WIDTH / 2, HEIGHT / 2 + 68);
+            
+            ctx.fillStyle = '#9c27b0';
+            ctx.fillText('↔ 보라색 망치: 지그재그로 움직임 (10초 이후)', WIDTH / 2, HEIGHT / 2 + 86);
             
             ctx.fillStyle = 'white';
             ctx.font = 'bold 18px sans-serif';
