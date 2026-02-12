@@ -60,7 +60,7 @@
   // Touch controls: left stick + dash button (DOM gamepad UI on mobile)
   const touch = {
     // stick center/cur are in CSS pixels (screen space)
-    stick: { active: false, pointerId: null, centerXCss: 0, centerYCss: 0, curXCss: 0, curYCss: 0, radiusCss: 78 },
+    stick: { active: false, pointerId: null, centerXCss: 0, centerYCss: 0, curXCss: 0, curYCss: 0, radiusCss: 68 },
     axisX: 0,
     axisY: 0,
     dashRequested: false,
