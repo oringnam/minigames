@@ -31,7 +31,7 @@
             backdrop-filter: blur(20px);
             border: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 25px;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 
                 0 20px 60px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.1);
@@ -43,59 +43,43 @@
         h1 {
             color: white;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-            font-size: 2em;
+            margin-bottom: 15px;
+            font-size: 1.8em;
             font-weight: 900;
         }
         
         #game-wrap {
             position: relative;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         
-        /* HUD overlay */
+        /* HUD overlay for toast only */
         #hud {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             pointer-events: none;
             z-index: 10;
-        }
-        
-        .row {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .pill {
-            background: rgba(14, 19, 35, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 999px;
-            padding: 8px 14px;
-            font-size: 14px;
-            color: #a5b3d6;
-            max-width: 48%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            width: 90%;
         }
         
         #toast {
-            margin-top: 10px;
             min-height: 24px;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.95);
             font-size: 14px;
             text-align: center;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+            background: rgba(14, 19, 35, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 10px 15px;
         }
         
         #game {
             width: 100%;
-            max-width: 540px;
+            max-width: 480px;
             height: auto;
             aspect-ratio: 9 / 16;
             display: block;
@@ -110,19 +94,19 @@
         /* Mobile controls */
         .controls {
             width: 100%;
-            max-width: 540px;
+            max-width: 480px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            margin: 15px auto 0;
+            gap: 10px;
+            margin: 10px auto 0;
         }
         
         .pad-left {
             position: relative;
-            width: clamp(170px, 46vw, 260px);
-            height: clamp(140px, 36vw, 200px);
-            border-radius: 18px;
+            width: clamp(150px, 40vw, 220px);
+            height: clamp(120px, 30vw, 170px);
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             background: rgba(14, 19, 35, 0.5);
             backdrop-filter: blur(10px);
@@ -135,8 +119,8 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            width: clamp(118px, 32vw, 168px);
-            height: clamp(118px, 32vw, 168px);
+            width: clamp(100px, 28vw, 145px);
+            height: clamp(100px, 28vw, 145px);
             transform: translate(-50%, -50%);
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
@@ -149,8 +133,8 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 72px;
-            height: 72px;
+            width: 60px;
+            height: 60px;
             transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)));
             border-radius: 50%;
             background: rgba(86, 240, 194, 0.2);
@@ -160,23 +144,23 @@
         
         .pad-label {
             position: absolute;
-            left: 12px;
-            bottom: 10px;
-            font-size: 12px;
+            left: 10px;
+            bottom: 8px;
+            font-size: 11px;
             letter-spacing: 0.12em;
             color: rgba(232, 238, 252, 0.7);
         }
         
         .pad-dash {
-            width: clamp(140px, 36vw, 220px);
-            height: clamp(140px, 36vw, 220px);
-            border-radius: 18px;
+            width: clamp(120px, 30vw, 190px);
+            height: clamp(120px, 30vw, 190px);
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             background: rgba(14, 19, 35, 0.5);
             backdrop-filter: blur(10px);
             color: rgba(232, 238, 252, 0.9);
             font-weight: 800;
-            font-size: 18px;
+            font-size: 17px;
             letter-spacing: 0.06em;
             box-shadow: 0 12px 34px rgba(0,0,0,0.4);
             touch-action: none;
@@ -196,18 +180,6 @@
             opacity: 0.75;
         }
         
-        @media (max-width: 420px) {
-            .row {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
-            }
-            
-            .pill {
-                max-width: 100%;
-            }
-        }
-        
         @media (pointer: fine) {
             /* Desktop: hide controls */
             .controls {
@@ -217,17 +189,22 @@
             #game {
                 aspect-ratio: 16/9;
                 max-width: 720px;
-                max-height: 92vh;
+                max-height: 85vh;
             }
         }
         
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 15px;
             }
             
             h1 {
                 font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            
+            #game-wrap {
+                margin: 5px 0;
             }
         }
     </style>
@@ -236,13 +213,12 @@
     <div class="container">
         <h1>🚚 Delivery Dash</h1>
         
+        <!-- Score board (GameUI) -->
+        <div id="scoreBoard"></div>
+        
         <div id="game-wrap">
-            <!-- HUD -->
+            <!-- Toast overlay -->
             <div id="hud" aria-hidden="true">
-                <div class="row">
-                    <div class="pill" id="hud-left"></div>
-                    <div class="pill" id="hud-right"></div>
-                </div>
                 <div id="toast"></div>
             </div>
             

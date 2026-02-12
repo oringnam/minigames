@@ -16,9 +16,20 @@
   // next threshold after n level-ups completed = T(n+1) = (n+1)(n+2)/2
   const nextLevelUpAt = (levelUpCount) => ((levelUpCount + 1) * (levelUpCount + 2)) / 2;
 
-  const hudLeft = document.getElementById('hud-left');
-  const hudRight = document.getElementById('hud-right');
   const toastEl = document.getElementById('toast');
+  
+  // Score board (GameUI)
+  let scoreBoard = null;
+  if (typeof GameUI !== 'undefined') {
+    scoreBoard = GameUI.createScoreBoard({
+      items: [
+        { id: 'score', label: '점수', value: 0 },
+        { id: 'deliveries', label: '배달', value: 0 },
+        { id: 'time', label: '시간', value: '60s' }
+      ],
+      containerId: 'scoreBoard'
+    });
+  }
 
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -49,7 +60,7 @@
   // Touch controls: left stick + dash button (DOM gamepad UI on mobile)
   const touch = {
     // stick center/cur are in CSS pixels (screen space)
-    stick: { active: false, pointerId: null, centerXCss: 0, centerYCss: 0, curXCss: 0, curYCss: 0, radiusCss: 92 },
+    stick: { active: false, pointerId: null, centerXCss: 0, centerYCss: 0, curXCss: 0, curYCss: 0, radiusCss: 78 },
     axisX: 0,
     axisY: 0,
     dashRequested: false,
@@ -1541,11 +1552,14 @@
       dashBtn.classList.toggle('cooldown', !ready);
     }
     const p = state.player;
-    const dash = p ? (p.dashCd > 0 ? `${p.dashCd.toFixed(1)}s` : 'ready') : '-';
     const t = `${Math.ceil(state.timeLeft)}s`;
-    const modeTag = state.mode === 'upgrade' ? 'UPGRADE' : (state.carry ? 'CARRY' : 'EMPTY');
-    hudLeft.textContent = `점수 ${Math.floor(state.score)} · 배달 ${state.deliveries} · ${modeTag}`;
-    hudRight.textContent = `시간 ${t} · HP ${p ? p.hp : '-'} · 드론 ${state.drones.length} · 대시 ${dash} · v${BUILD}`;
+    
+    // Update score board
+    if (scoreBoard) {
+      scoreBoard.update('score', Math.floor(state.score));
+      scoreBoard.update('deliveries', state.deliveries);
+      scoreBoard.update('time', t);
+    }
   }
 
   function loop(ts) {
