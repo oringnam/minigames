@@ -299,6 +299,8 @@
                     score += 100;
                     hammers.splice(i, 1);
                     sounds.play('powerup');
+                    vibrate([50, 30, 50]); // 보너스 진동
+                    updateUI(); // 점수 즉시 업데이트
                     continue;
                 } else {
                     // 일반/큰/작은/지그재그 망치 - 게임 오버
