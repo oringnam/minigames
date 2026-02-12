@@ -82,6 +82,8 @@
             padding: 10px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            touch-action: none;
+            user-select: none;
         }
         
         .gem {
@@ -95,6 +97,8 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            touch-action: none;
+            user-select: none;
         }
         
         .gem:hover {
@@ -211,11 +215,8 @@
                     // 클릭 이벤트
                     gemDiv.addEventListener('click', () => selectGem(r, c));
                     
-                    // 드래그 이벤트
+                    // 드래그 시작 이벤트만
                     gemDiv.addEventListener('pointerdown', (e) => handleDragStart(e, r, c));
-                    gemDiv.addEventListener('pointermove', (e) => handleDragMove(e));
-                    gemDiv.addEventListener('pointerup', (e) => handleDragEnd(e));
-                    gemDiv.addEventListener('pointercancel', (e) => handleDragEnd(e));
                     
                     boardElement.appendChild(gemDiv);
                 }
@@ -226,6 +227,7 @@
         function handleDragStart(e, row, col) {
             if (timeLeft <= 0) return;
             
+            e.preventDefault();
             dragStart = { row, col, x: e.clientX, y: e.clientY };
             highlightGem(row, col);
             sounds.play('click');
@@ -236,9 +238,11 @@
         function handleDragMove(e) {
             if (!dragStart) return;
             
+            e.preventDefault();
+            
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 30; // 드래그 인식 임계값
+            const threshold = 25; // 드래그 인식 임계값 (조금 더 민감하게)
             
             if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
                 // 드래그 방향 판단
@@ -265,9 +269,17 @@
         
         // 드래그 종료
         function handleDragEnd(e) {
+            if (dragStart) {
+                e.preventDefault();
+            }
             dragStart = null;
             clearSelection();
         }
+        
+        // 전역 이벤트 리스너 등록
+        document.addEventListener('pointermove', handleDragMove);
+        document.addEventListener('pointerup', handleDragEnd);
+        document.addEventListener('pointercancel', handleDragEnd);
         
         function selectGem(row, col) {
             if (timeLeft <= 0) return;
