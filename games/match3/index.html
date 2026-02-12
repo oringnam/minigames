@@ -142,16 +142,18 @@
         let board = [];
         let selectedGem = null;
         let score = 0;
-        let moves = 30;
-        let target = 1000;
+        let timeLeft = 60;
+        let target = 1500;
         let chain = 0; // 연쇄 카운터
+        let gameTimer = null;
+        let dragStart = null;
         
         // 점수판 생성 (GameUI)
         const scoreBoard = GameUI.createScoreBoard({
             items: [
                 { id: 'score', label: '점수', value: 0 },
-                { id: 'moves', label: '이동', value: 30 },
-                { id: 'target', label: '목표', value: 1000 }
+                { id: 'time', label: '시간', value: '60s' },
+                { id: 'target', label: '목표', value: 1500 }
             ],
             containerId: 'scoreBoard'
         });
@@ -205,20 +207,75 @@
                     gemDiv.textContent = board[r][c];
                     gemDiv.dataset.row = r;
                     gemDiv.dataset.col = c;
+                    
+                    // 클릭 이벤트
                     gemDiv.addEventListener('click', () => selectGem(r, c));
+                    
+                    // 드래그 이벤트
+                    gemDiv.addEventListener('pointerdown', (e) => handleDragStart(e, r, c));
+                    gemDiv.addEventListener('pointermove', (e) => handleDragMove(e));
+                    gemDiv.addEventListener('pointerup', (e) => handleDragEnd(e));
+                    gemDiv.addEventListener('pointercancel', (e) => handleDragEnd(e));
+                    
                     boardElement.appendChild(gemDiv);
                 }
             }
         }
         
+        // 드래그 시작
+        function handleDragStart(e, row, col) {
+            if (timeLeft <= 0) return;
+            
+            dragStart = { row, col, x: e.clientX, y: e.clientY };
+            highlightGem(row, col);
+            sounds.play('click');
+            vibrate(10);
+        }
+        
+        // 드래그 중
+        function handleDragMove(e) {
+            if (!dragStart) return;
+            
+            const dx = e.clientX - dragStart.x;
+            const dy = e.clientY - dragStart.y;
+            const threshold = 30; // 드래그 인식 임계값
+            
+            if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+                // 드래그 방향 판단
+                let targetRow = dragStart.row;
+                let targetCol = dragStart.col;
+                
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // 좌우
+                    targetCol += dx > 0 ? 1 : -1;
+                } else {
+                    // 상하
+                    targetRow += dy > 0 ? 1 : -1;
+                }
+                
+                // 보드 범위 체크
+                if (targetRow >= 0 && targetRow < BOARD_SIZE && targetCol >= 0 && targetCol < BOARD_SIZE) {
+                    attemptSwap(dragStart.row, dragStart.col, targetRow, targetCol);
+                }
+                
+                dragStart = null;
+                clearSelection();
+            }
+        }
+        
+        // 드래그 종료
+        function handleDragEnd(e) {
+            dragStart = null;
+            clearSelection();
+        }
+        
         function selectGem(row, col) {
-            if (moves <= 0) return;
+            if (timeLeft <= 0) return;
             
             if (selectedGem === null) {
                 selectedGem = {row, col};
                 highlightGem(row, col);
                 
-                // 🎵 선택 사운드
                 sounds.play('click');
                 vibrate(10);
             } else {
@@ -226,26 +283,25 @@
                 
                 // 인접한 보석인지 확인
                 if (Math.abs(r1 - row) + Math.abs(c1 - col) === 1) {
-                    swapGems(r1, c1, row, col);
-                    
-                    if (findMatches().length > 0) {
-                        chain = 0; // 연쇄 카운터 리셋 (새 이동)
-                        moves--;
-                        scoreBoard.update('moves', moves);
-                        processMatches();
-                        
-                        if (moves === 0) {
-                            setTimeout(checkGameEnd, 500);
-                        }
-                    } else {
-                        // 🎵 매치 없으면 되돌리기
-                        sounds.play('error');
-                        vibrate(100);
-                        swapGems(r1, c1, row, col);
-                    }
+                    attemptSwap(r1, c1, row, col);
                 }
                 
                 clearSelection();
+            }
+        }
+        
+        // 교환 시도 (드래그와 클릭에서 공통 사용)
+        function attemptSwap(r1, c1, r2, c2) {
+            swapGems(r1, c1, r2, c2);
+            
+            if (findMatches().length > 0) {
+                chain = 0; // 연쇄 카운터 리셋
+                processMatches();
+            } else {
+                // 매치 없으면 되돌리기
+                sounds.play('error');
+                vibrate(100);
+                swapGems(r1, c1, r2, c2);
             }
         }
         
@@ -377,10 +433,36 @@
             }
         }
         
+        // 타이머 시작
+        function startTimer() {
+            if (gameTimer) clearInterval(gameTimer);
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                scoreBoard.update('time', `${timeLeft}s`);
+                
+                // 시간 경고
+                if (timeLeft === 10) {
+                    sounds.play('warning');
+                    vibrate([50, 50, 50]);
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    checkGameEnd();
+                }
+                
+                // 목표 달성 체크
+                if (score >= target) {
+                    clearInterval(gameTimer);
+                    checkGameEnd();
+                }
+            }, 1000);
+        }
+        
         function checkGameEnd() {
             const won = score >= target;
             
-            // 🎵 승리/패배 사운드 + 진동
             if (won) {
                 sounds.play('victory');
                 vibrate([100, 50, 100, 50, 200]);
@@ -389,15 +471,14 @@
                 vibrate(200);
             }
             
-            // 모달 표시 (GameUtils)
             setTimeout(() => {
                 GameUtils.createModal({
-                    title: won ? '🎉 목표 달성!' : '💀 게임 오버!',
+                    title: won ? '🎉 목표 달성!' : '⏰ 시간 종료!',
                     message: won ? '축하합니다!' : '다시 도전하세요!',
                     stats: [
                         { label: '최종 점수', value: score },
                         { label: '목표', value: target },
-                        { label: '사용 이동', value: 30 - moves }
+                        { label: '남은 시간', value: `${timeLeft}s` }
                     ],
                     buttons: [
                         {
@@ -405,7 +486,7 @@
                             action: () => {
                                 const emoji = won ? '🎉' : '💎';
                                 const status = won ? '목표 달성!' : '도전!';
-                                const text = `${emoji} 매치3 ${status}\n\n점수: ${score}\n목표: ${target}\n\nhttps://oringnam.github.io/minigames/`;
+                                const text = `${emoji} 매치3 ${status}\n\n점수: ${score}\n목표: ${target}\n시간: ${60 - timeLeft}초\n\nhttps://oringnam.github.io/minigames/`;
                                 GameUtils.copyToClipboard(text);
                             }
                         },
@@ -420,12 +501,15 @@
         
         function initGame() {
             score = 0;
-            moves = 30;
+            timeLeft = 60;
             selectedGem = null;
             chain = 0;
+            dragStart = null;
+            
+            if (gameTimer) clearInterval(gameTimer);
             
             scoreBoard.update('score', 0);
-            scoreBoard.update('moves', 30);
+            scoreBoard.update('time', '60s');
             
             // 플레이 추적
             GameUtils.trackPlay('match3');
@@ -436,6 +520,7 @@
             
             createBoard();
             renderBoard();
+            startTimer(); // 타이머 시작
         }
         
         // 게임 시작
