@@ -1429,23 +1429,29 @@
       boxes.push({ x: bx, y: by, w: cardW, h: cardH });
 
       ctx.save();
-      ctx.fillStyle = 'rgba(255,255,255,.06)';
+      
+      // Card background with gradient
+      ctx.fillStyle = 'rgba(255,255,255,.15)';
       roundRect(ctx, bx, by, cardW, cardH, 16);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,.12)';
-      ctx.lineWidth = 1;
+      
+      // Card border (brighter)
+      ctx.strokeStyle = 'rgba(86,240,194,.35)';
+      ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
 
-      ctx.fillStyle = 'rgba(86,240,194,.85)';
-      ctx.font = '700 16px ui-sans-serif, system-ui';
-      ctx.fillText(`${i + 1}. ${u.name}`, bx + 16, by + 28);
+      // Title (brighter and bolder)
+      ctx.fillStyle = '#56f0c2';
+      ctx.font = '700 18px ui-sans-serif, system-ui';
+      ctx.fillText(`${i + 1}. ${u.name}`, bx + 16, by + 26);
 
-      ctx.fillStyle = 'rgba(232,238,252,.80)';
-      ctx.font = '14px ui-sans-serif, system-ui';
-      ctx.fillText(u.desc, bx + 16, by + 52);
+      // Description (much brighter)
+      ctx.fillStyle = 'rgba(255,255,255,.95)';
+      ctx.font = '600 15px ui-sans-serif, system-ui';
+      ctx.fillText(u.desc, bx + 16, by + 54);
 
       ctx.restore();
     }
