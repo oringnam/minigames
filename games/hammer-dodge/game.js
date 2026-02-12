@@ -294,14 +294,39 @@
         gameState = 'gameover';
         sounds.play('gameover');
         
-        if (GameUtils.updateHighScore('hammer-dodge', score)) {
+        const isNewRecord = GameUtils.updateHighScore('hammer-dodge', score);
+        if (isNewRecord) {
             highScore = score;
-            messageEl.textContent = '🎉 신기록! 탭해서 재시작';
-        } else {
-            messageEl.textContent = '게임 오버! 탭해서 재시작';
         }
         
         updateUI();
+        
+        // 모달 표시
+        setTimeout(() => {
+            GameUtils.createModal({
+                title: isNewRecord ? '🎉 신기록!' : '💀 게임 오버!',
+                stats: [
+                    { label: '점수', value: score },
+                    { label: '최고점수', value: highScore },
+                    { label: '생존시간', value: `${gameTime.toFixed(1)}초` }
+                ],
+                buttons: [
+                    {
+                        text: '📱 카톡 공유',
+                        action: () => {
+                            const text = `🔨 망치 피하기\n\n점수: ${score}\n최고: ${highScore}\n생존: ${gameTime.toFixed(1)}초\n\nhttps://oringnam.github.io/minigames/`;
+                            GameUtils.copyToClipboard(text);
+                        }
+                    },
+                    {
+                        text: '다시 하기',
+                        action: () => {
+                            startGame();
+                        }
+                    }
+                ]
+            });
+        }, 500);
     }
 
     // UI 업데이트
