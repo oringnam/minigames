@@ -225,7 +225,7 @@
         score = Math.floor(gameTime * 10);
 
         // 난이도 증가 (더 가파르게)
-        const difficulty = Math.floor(gameTime / 8); // 8초마다 증가
+        const difficulty = Math.floor(gameTime / 5); // 5초마다 증가
         hammerSpeed = 4 + difficulty * 0.8;
         hammerSpawnInterval = Math.max(0.25, 1.2 - difficulty * 0.12);
 
